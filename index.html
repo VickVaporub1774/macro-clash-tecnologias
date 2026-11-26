@@ -1,327 +1,1563 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090A0F">
 <title>MACRO-CLASH: Camino al Olimpo del Gym</title>
-<style>
-:root{--bg:#0d0f12;--pn:#171b21;--ln:#2a313b;--g:#39ff6a;--o:#ff8a1f;--r:#ff4d4d;--t:#e8edf2;--m:#8c97a4}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:15px/1.45 ui-monospace,Consolas,monospace}
-#app{max-width:880px;margin:auto;padding:10px}header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-h1{font:900 clamp(18px,4vw,28px) Impact,'Arial Black',sans-serif;letter-spacing:1px;margin:0;color:var(--g);text-shadow:2px 2px var(--o)}
-h2{margin:0 0 6px;color:var(--o)}small{color:var(--m)}
-button{font:inherit;font-weight:700;background:var(--pn);color:var(--t);border:2px solid var(--ln);padding:8px 12px;cursor:pointer;border-radius:4px}
-button:hover:not(:disabled){border-color:var(--g)}button:focus-visible{outline:2px solid var(--o)}button:disabled{opacity:.4;cursor:not-allowed}
-.pri{background:var(--g);color:#000;border-color:var(--g)}.or{background:var(--o);color:#000;border-color:var(--o)}
-canvas{width:100%;display:block;image-rendering:pixelated;border:3px solid var(--ln);background:#000;margin:8px 0;touch-action:manipulation}
-#stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:6px}.st{background:var(--pn);padding:4px 6px;border-radius:4px;font-size:12px}
-.bar{height:8px;background:#000;margin-top:3px}.bar i{display:block;height:100%;transition:width .4s}
-#panel{background:var(--pn);border:2px solid var(--ln);padding:12px;border-radius:6px;margin-top:8px}
-#fg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}@media(max-width:640px){.fd{font-size:10px;padding:6px 4px}.fd small{font-size:9px}}
-.fd{text-align:left;font-size:12px}.fd.on{border-color:var(--g);background:#12301c}
-.tag{display:inline-block;padding:2px 6px;border-radius:3px;font-size:12px;margin:2px}.good{background:#12301c;color:var(--g)}.bad{background:#3a1616;color:var(--r)}
-.blk{display:block;width:100%;text-align:left;margin:5px 0}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-#log{font-size:12px;color:var(--m);min-height:50px;margin-top:6px}
-.cr{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 0}.cr b{min-width:130px;font-size:13px}.sw{width:28px;height:28px;padding:0;border-radius:50%;border:3px solid var(--ln)}.sw.on{border-color:#fff;box-shadow:0 0 0 2px var(--g)}.opt{padding:5px 9px;font-size:13px}.opt.on{background:var(--g);color:#000;border-color:var(--g)}
-</style></head><body><div id="app">
-<header><h1>MACRO-CLASH <small>Camino al Olimpo del Gym</small></h1><div><b id="day"></b> <button id="mu" aria-label="Silenciar">🔊</button></div></header>
-<canvas id="cv" width="320" height="180"></canvas><div id="stats"></div><div id="panel"></div></div>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%8B%3C/text%3E%3C/svg%3E">
+<!-- Dependencias opcionales: si fallan o tardan, el juego funciona igual -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;800&family=Press+Start+2P&display=swap" media="print" onload="this.media='all'">
 <script>
-const $=i=>document.getElementById(i),cv=$('cv'),x=cv.getContext('2d');x.imageSmoothingEnabled=false;
-const GO={mus:{n:'Ganancia muscular',k:2300,p:160,c:290,f:70,d:'Más carbohidratos y calorías para construir fuerza.'},rec:{n:'Recomposición corporal',k:1700,p:150,c:170,f:55,d:'Proteína alta y calorías moderadas: más músculo, menos grasa.'},res:{n:'Resistencia atlética',k:2100,p:110,c:330,f:60,d:'Muchos carbohidratos para aguantar rondas largas.'}};
-// [emoji,nombre,kcal,P,C,G,chatarra]
-const F=[['🍗','Pechuga de pollo 300 g',495,93,0,11],['🍚','Arroz integral 2 tazas',430,10,90,4],['🍳','Huevos revueltos (5)',460,32,3,34],['🥣','Avena con plátano grande',520,15,95,9],['🥑','Aguacate (2)',480,6,26,44],['🐟','Salmón 250 g',520,56,0,30],['🍕','Pizza grasosa (4 reb.)',1000,38,115,45,1],['🥤','Refresco 1 L',420,0,106,0,1],['⚡','Bebida energética (2)',440,0,110,0,1],['🥗','Ensalada mixta con aceite',180,4,18,11],['🫘','Frijoles con tortillas',560,22,100,7],['🥛','Yogur griego con fruta',380,24,50,9],['🥔','Papa al horno (3)',480,12,108,0],['🥫','Atún (3 latas) con pan',520,60,40,9],['🍔','Hamburguesa doble + papas',1150,50,100,62,1],
-['🥩','Carne molida magra 250 g',440,50,0,25],['🥡','Tofu firme 400 g',280,32,8,17],['🍙','Arroz blanco cocido 2 tazas',520,11,113,1],['🍌','Plátano (3)',267,3,68,1],['🍝','Pasta cocida 400 g',632,23,124,4],['🌮','Tortillas de maíz (6)',327,9,67,4],['🫒','Aceite de oliva 2 cdas',265,0,0,30],['🌰','Almendras 80 g',463,17,17,40],['🍯','Crema de cacahuate 4 cdas',376,16,13,32],['🥜','Nueces 80 g',523,12,11,52]];
-const SN=[['STR','Fuerza','#ff8a1f'],['STA','Resistencia','#39ff6a'],['REC','Recuperación','#4db8ff'],['ENG','Energía','#ffd84d'],['HP','Salud metab.','#ff6b9a']];
-const EVD=[3,5,8,10,13];
-const EV=[
-['📱 El polvo mágico del influencer','Un influencer jura que su polvo te marca el abdomen en 3 días. Cuesta $900.',[['Comprarlo',{HP:-6,ENG:-5},0,'No existe la pérdida de grasa localizada ni el abdomen en 3 días. Esos polvos suelen ser diuréticos, laxantes o estimulantes: pierdes agua, no grasa.'],['Ignorarlo y seguir tu plan',{HP:5,REC:3},1,'La grasa abdominal baja con déficit calórico sostenido, proteína suficiente, fuerza y sueño. Ningún polvo lo reemplaza.'],['Consultar a un nutriólogo certificado',{HP:4,STR:2,REC:2},1,'Un profesional ajusta el plan a tu cuerpo y evita que gastes en promesas sin evidencia.']]],
-['📚 Examen mañana','Tienes examen y quieres tomar 3 bebidas energéticas sin dormir.',[['Tomarlas y estudiar toda la noche',{REC:-8,HP:-5,ENG:-8},0,'La cafeína no sustituye al sueño: sin dormir se consolida peor la memoria y se eleva el cortisol, lo que frena la recuperación muscular.'],['Dormir 7-8 h y repasar temprano',{REC:7,HP:3,ENG:5},1,'Dormir consolida lo aprendido y libera hormona de crecimiento, clave para recuperarte.'],['Una bebida y dormir 4 h',{REC:-3,ENG:-2},0,'Es un punto medio, pero dormir tan poco sigue afectando recuperación y rendimiento.']]],
-['🥩 "Solo proteína, cero carbos"','Un amigo presume su dieta sin carbohidratos y te reta a imitarla.',[['Aceptar el reto',{STA:-5,ENG:-10},0,'Sin carbohidratos se vacía el glucógeno: menos energía, mal ánimo y menos rendimiento en entrenamientos intensos.'],['Explicarle que los carbos son combustible',{STA:3,ENG:5,HP:2},1,'Los carbohidratos reponen glucógeno muscular. La proteína repara; no es la fuente principal de energía.']]],
-['🎂 Cumpleaños con pizza y refresco','Hay pizza, pastel y refresco ilimitado.',[['Comer sin control',{HP:-5,STA:-4},0,'Un día no arruina tu progreso, pero el exceso de grasa y azúcar simples genera pesadez y picos de glucosa.'],['Porción moderada y a bailar',{HP:3,STA:2},1,'Equilibrio: disfrutas sin culpa y mantienes el hábito. La consistencia importa más que la perfección.'],['No comer en todo el día para compensar',{ENG:-8,HP:-3},0,'Saltarte comidas suele terminar en atracones y baja tu energía de entrenamiento.']]],
-['🦵 Agujetas fuertes','Te duelen las piernas muchísimo y quieres entrenarlas igual.',[['Entrenar al límite de todos modos',{REC:-6,STR:-2},0,'Entrenar un músculo sin recuperarse acumula fatiga y aumenta el riesgo de lesión. El músculo crece al descansar.'],['Descanso activo, proteína y sueño',{REC:7,HP:2},1,'Caminar suave, comer proteína y dormir bien aceleran la reparación muscular.'],['Antiinflamatorio todos los días',{HP:-5,REC:-2},0,'Abusar de antiinflamatorios daña estómago y riñón, y puede limitar la adaptación al entrenamiento.']]]];
-let S,T,goal,day,sel=[],D,mode='title',act=null,tm=null,B=null,ft=[],aT=0,sh=0,lg=0,bl=0,mute=false,mus=null,AC=null;
-function reset(){S={STR:10,STA:10,REC:10,ENG:50,HP:50};T={c:0,p:0,j:0,ok:0,ev:0,evn:0,rest:0};day=1;sel=[];ft=[];}
-// ---------- AUDIO ----------
-function au(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC}
-function bp(f,d=.1,t='square',v=.06,s=0,dl=0){if(mute)return;const a=au();if(!a)return;try{const o=a.createOscillator(),g=a.createGain(),n=a.currentTime+dl;o.type=t;o.frequency.setValueAtTime(f,n);if(s)o.frequency.exponentialRampToValueAtTime(Math.max(30,f+s),n+d);g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(a.destination);o.start(n);o.stop(n+d)}catch(e){}}
-const SFX={click:()=>bp(660,.05),hit:()=>{bp(520,.08,'square',.07,300);bp(780,.1,'square',.07,0,.07)},miss:()=>bp(160,.2,'sawtooth',.07,-80),up:()=>[523,659,784,1046].forEach((f,i)=>bp(f,.12,'square',.06,0,i*.09)),alert:()=>{bp(300,.1,'sawtooth');bp(300,.1,'sawtooth',.06,0,.15)},lift:()=>bp(110,.15,'triangle',.1,60),hurt:()=>bp(200,.2,'sawtooth',.08,-120)};
-function music(ms){clearInterval(mus);let i=0;const n=[110,0,110,165,147,0,147,196,131,0,131,196,123,0,165,147];mus=setInterval(()=>{const f=n[i++%16];if(f)bp(mode==='battle'?f*2:f,.18,'triangle',.05)},ms)}
-$('mu').onclick=()=>{mute=!mute;$('mu').textContent=mute?'🔇':'🔊';if(!mute){au();SFX.click()}};
-// ---------- UI ----------
-function ups(){$('stats').innerHTML=SN.map(([k,n,c])=>`<div class="st">${n} <b>${Math.round(S[k])}</b><div class="bar"><i style="width:${S[k]}%;background:${c}"></i></div></div>`).join('');$('stats').style.display=(mode==='menu'||mode==='story'||mode==='custom')?'none':'';$('day').textContent=mode==='title'||mode==='menu'||mode==='story'||mode==='custom'?'':day>14?'Día 15 · BATALLA':`Día ${day}/14`}
-function fl(t,c,px=95,py=95){ft.push({t,c,x:px,y:py,l:70})}
-function gain(k,v){const o=S[k];S[k]=Math.max(0,Math.min(100,o+v));const d=Math.round(S[k]-o);if(d)fl((d>0?'+':'')+d+' '+k,d>0?'#39ff6a':'#ff4d4d',70+Math.random()*50,85);if(Math.floor(S[k]/25)>Math.floor(o/25)){SFX.up();fl('¡NIVEL!','#ffd84d',95,60)}ups()}
-function P(h){$('panel').innerHTML=h}
-// ---------- MENÚ / GUARDADO ----------
-const KEY='macroclash_save_v1';let gk=null;
-function saveG(){try{localStorage.setItem(KEY,JSON.stringify({g:gk,day,S,T,pl:PL}))}catch(e){}}
-function loadG(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&GO[s.g]&&s.S&&s.T&&s.day>=1&&s.day<=15)return s}catch(e){}return null}
-function clearG(){try{localStorage.removeItem(KEY)}catch(e){}}
-function setCv(h){if(cv.height!==h){cv.height=h;x.imageSmoothingEnabled=false}cv.style.maxWidth=h>180?'440px':'';cv.style.margin=h>180?'8px auto':''}
-function menu(){clearInterval(mus);mode='menu';act=null;tm=null;B=null;reset();setCv(270);ups();const sv=loadG();
-P(`<div class="row" style="justify-content:center;flex-direction:column;align-items:center;margin-top:0"><button class="pri" id="ini" style="min-width:230px;font-size:18px;padding:12px">▶ INICIAR</button><button class="or" id="con" style="min-width:230px;font-size:18px;padding:12px" ${sv?'':'disabled'}>⏩ CONTINUAR</button>${sv?`<small>Partida guardada: ${GO[sv.g].n} · ${sv.day>14?'Día 15 (Batalla)':'Día '+sv.day+'/14'}</small>`:'<small>No hay partida guardada</small>'}</div>`);
-$('ini').onclick=()=>{au();SFX.click();custom()};
-$('con').onclick=()=>{const s=loadG();if(!s)return;au();SFX.click();goal=GO[s.g];gk=s.g;S=s.S;T=s.T;day=s.day;if(s.pl)PL=Object.assign(PL,s.pl);sel=[];ft=[];setCv(180);mode='idle';music(230);ups();if(day>14)intro();else kitchen()}}
-function goals(){mode='title';act=null;reset();setCv(180);ups();P(`<h2>Elige tu objetivo</h2><p>Enfrenta a <b>Braulio "El Ciclado" Broscience</b> en 14 días de preparación + 1 batalla final. Tu dieta decide cómo entrenas.</p>
-${Object.keys(GO).map(k=>`<button class="blk" data-g="${k}"><b>${GO[k].n}</b> — ${GO[k].k} kcal · P${GO[k].p} C${GO[k].c} G${GO[k].f}<br><small>${GO[k].d}</small></button>`).join('')}
-<div class="row"><button id="how">¿Cómo jugar?</button></div>`);
-document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{au();SFX.click();goal=GO[b.dataset.g];gk=b.dataset.g;music(230);mode='idle';reset();ups();kitchen()});$('how').onclick=()=>{SFX.click();how()}}
-function how(){P(`<h2>¿Cómo jugar?</h2><p>🍞 <b>Carbohidratos = Energía.</b> Llenan tu glucógeno. Si faltan (&lt;35% de la meta) tendrás hipoglucemia y entrenarás a medias.</p><p>🥩 <b>Proteínas = Fuerza y recuperación.</b> Si faltan (&lt;70%) entras en catabolismo y no subes Fuerza.</p><p>🥑 <b>Grasas = Balance y defensa.</b> Regulan hormonas y salud, pero mucha chatarra o más del 130% de las kcal causa pesadez.</p><p>Cada día: 1) arma tu dieta (máx. 4 platos), 2) entrena con la barra de precisión (ESPACIO o clic en la zona verde), 3) resuelve eventos. En el día 15, pelea por turnos.</p><button class="pri" id="bk">Entendido</button>`);$('bk').onclick=()=>{SFX.click();goals()}}
-function evalDiet(l=sel){const g=goal;let k=0,p=0,c=0,f=0,j=0;l.forEach(i=>{const a=F[i];k+=a[2];p+=a[3];c+=a[4];f+=a[5];if(a[6])j++});
-const fl={ok:Math.abs(k/g.k-1)<=.15,hipo:c<g.c*.35,cata:p<g.p*.7,pes:k>g.k*1.3||j>=2};const cl=(a,b)=>Math.max(0,1-Math.abs(a/b-1));
-let q=.4*cl(k,g.k)+.25*cl(p,g.p)+.25*cl(c,g.c)+.1*cl(f,g.f);if(fl.ok)q+=.1;if(fl.hipo)q-=.15;if(fl.cata)q-=.1;if(fl.pes)q-=.15;return{k,p,c,f,j,fl,q:Math.max(.05,Math.min(1,q))}}
-function kitchen(){mode='idle';act=null;tm=null;sel=[];ups();saveG();const g=goal;spawnCast();const tab=pickFoods();
-P(`<h2>🍳 La Cocina · Día ${day}</h2><p>Meta: <b>${g.k}</b> kcal · P ${g.p}g · C ${g.c}g · G ${g.f}g. Elige hasta 4 platos.</p><div id="fg">${tab.map(i=>{const f=F[i];return `<button class="fd" data-i="${i}">${f[0]} <b>${f[1]}</b><br><small>${f[2]} kcal · P${f[3]} C${f[4]} G${f[5]}</small></button>`}).join('')}</div><div id="tot"></div><div class="row"><button class="pri" id="go" disabled>Cocinar y guardar dieta</button></div>`);
-const upd=()=>{document.querySelectorAll('.fd').forEach(b=>b.classList.toggle('on',sel.includes(+b.dataset.i)));$('go').disabled=!sel.length;if(!sel.length){$('tot').innerHTML='<small>Selecciona tus alimentos…</small>';return}const d=evalDiet();$('tot').innerHTML=`<b>${d.k}</b>/${g.k} kcal · P <b>${d.p}</b>/${g.p} · C <b>${d.c}</b>/${g.c} · G <b>${d.f}</b>/${g.f}`};
-document.querySelectorAll('.fd').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,p=sel.indexOf(i);if(p>=0)sel.splice(p,1);else if(sel.length<4)sel.push(i);else SFX.miss();SFX.click();upd()});upd();
-$('go').onclick=()=>{D=evalDiet();const f=D.fl;SFX.click();
-if(D.c>=g.c*.6)T.c++;if(D.p>=g.p*.85)T.p++;if(D.j>0)T.j++;if(f.ok)T.ok++;
-S.ENG=Math.round(S.ENG*.4+(25+75*Math.min(1,D.c/g.c))*.6);if(f.hipo)S.ENG=Math.max(5,S.ENG-12);
-if(D.q>.7&&!D.j)gain('HP',3);else if(D.j||f.pes)gain('HP',-4);if(f.hipo)gain('HP',-2);if(!f.cata&&D.p>=g.p*.85)gain('REC',2);if(f.pes)gain('STA',-2);ups();gym()}}
-function gym(){const f=D.fl;
-P(`<h2>🏋️ El Gimnasio</h2><div>${f.ok?'<span class="tag good">✅ Kcal en rango: bono de rendimiento</span>':'<span class="tag bad">Kcal fuera de ±15%: sin bono</span>'}${f.hipo?'<span class="tag bad">⚠️ Hipoglucemia / Sin energía: ganancias a la mitad</span>':''}${f.cata?'<span class="tag bad">⚠️ Catabolismo: hoy no sube la Fuerza</span>':''}${f.pes?'<span class="tag bad">⚠️ Pesadez: el cardio rinde menos</span>':''}</div><p>Calidad de tu dieta: <b>${Math.round(D.q*100)}%</b> → zona verde ${D.q>.6?'amplia':'pequeña'} y barra ${D.q>.6?'lenta':'rápida'}.</p>
-<button class="blk or" data-t="bench">🏋️ Entrenar Fuerza (Press de Banca)</button><button class="blk or" data-t="rope">🪢 Cardio (Cuerda rápida)</button><button class="blk" data-t="rest">😴 Descanso Activo (Estiramientos / Sueño)</button>`);
-document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{SFX.click();train(b.dataset.t)})}
-function train(k){act=k;if(k==='rest'){T.rest++;P('<h2>😴 Descansando…</h2><p>Estiramientos, hidratación y buen sueño.</p>');setTimeout(()=>{gain('REC',6);gain('HP',3);gain('ENG',10);SFX.up();setTimeout(endDay,900)},1800);return}
-const w=24+D.q*56;tm={k,pos:0,dir:1,w,z:30,s0:(2.6-D.q*1.4)*QS,speed:(2.6-D.q*1.4)*QS,r:0,h:0,sc:0,lock:0,bad:0};rz();
-P(`<h2>${k==='bench'?'Press de Banca':'Cuerda rápida'}</h2><p>Pulsa <b>ESPACIO</b>, haz clic en el canvas o toca el botón cuando el indicador esté en la <span style="color:var(--g)">zona verde</span>. 8 repeticiones. Cada acierto acelera la barra (más suave desde la 5.ª); cada rep fallida resta 2 de energía extra al final, pero la serie continúa.</p><button class="pri blk" id="now">¡AHORA!</button>`);$('now').onclick=press}
-function rz(){tm.z=20+Math.random()*(240-tm.w-40)}
-function press(){if(!tm||tm.lock)return;const c=tm.z+tm.w/2,d=Math.abs(tm.pos+3-c);if(d<=tm.w/2){tm.sc+=1-d/(tm.w/2)*.5;tm.h++;tm.speed=tm.s0*(1+.15*Math.min(tm.h,5)+.08*Math.max(0,tm.h-5));SFX.hit();SFX.lift();fl('¡Bien!','#39ff6a',150,120)}else{SFX.miss();fl('Rep fallida','#ff4d4d',150,120);tm.bad++}
-tm.r++;if(tm.r>=NR){tm.lock=1;setTimeout(finish,700)}else rz()}
-function finish(){const f=D.fl,e=(f.hipo?.5:1)*(S.ENG<35?.7:1)*(f.ok?1.25:1),k=tm.k,bd=tm.bad;tm=null;
-if(k==='bench'){if(f.cata){fl('Catabolismo: 0 STR','#ff4d4d',100,70)}else gain('STR',tm0(e))}else gain('STA',tm0(e)*(f.pes?.5:1));gain('ENG',-12-2*bd);endDay()}
-function tm0(e){return Math.round(e*SC*3.2*10)/10}let SC=0;
-const _f=finish;finish=function(){SC=tm?tm.sc*3/NR:0;_f()};
-function endDay(){act=null;const d=day;if(EVD.includes(d))return event(EVD.indexOf(d));next()}
-function next(){day++;ups();if(day>14)intro();else kitchen()}
-function event(i){SFX.alert();const e=EV[i];P(`<h2>${e[0]}</h2><p>${e[1]}</p>`+e[2].map((o,j)=>`<button class="blk" data-o="${j}">${o[0]}</button>`).join(''));
-document.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const o=e[2][+b.dataset.o];T.evn++;if(o[2])T.ev++;SFX[o[2]?'up':'miss']();for(const k in o[1])gain(k,o[1][k]);
-P(`<h2>${o[2]?'✅ Buena decisión':'❌ Mala decisión'}</h2><p><b>${o[0]}</b></p><p>${o[3]}</p><button class="pri" id="c">Continuar</button>`);$('c').onclick=()=>{SFX.click();next()}})}
-// ---------- BATALLA ----------
-function intro(){mode='battle';music(150);ups();B=null;saveG();P(`<h2>🥊 Día 15: ¡Batalla Final!</h2><p>Braulio "El Ciclado" tiene mucha fuerza pero <b>0 resistencia</b>: odia los carbohidratos y el cardio. Agótalo y golpea con inteligencia.</p><p>Golpe de Glucógeno: ${T.c>=8?'<span class="tag good">desbloqueado</span>':`<span class="tag bad">🔒 necesitas 8 días con buenos carbohidratos (tienes ${T.c})</span>`}</p><button class="pri" id="fi">¡Pelear!</button>`);$('fi').onclick=()=>{SFX.click();startB()}}
-function startB(){const pe=Math.round(40+S.ENG*.6),ph=Math.round(90+S.HP*1.1);B={ph,hp:ph,pem:pe,pe,bh:325,be:250,bhm:325,bem:250,busy:0,over:0,log:['¡Suena la campana!']};bpanel()}
-const SK=[['Repetición Pesada','Escala con Fuerza',10],['Sprint Metabólico','Escala con Resistencia y Energía; agota a Braulio',15],['Respiración y Técnica','Recupera HP según Salud Metabólica',6],['Golpe de Glucógeno','Ataque definitivo (requiere buen balance de carbos)',30]];
-function bpanel(){P(`<h2>Tu turno</h2>`+SK.map((s,i)=>{const lk=i==3&&T.c<8;return`<button class="blk" data-s="${i}" ${B.busy||B.over||lk||B.pe<s[2]?'disabled':''}>${lk?'🔒 ':''}<b>${s[0]}</b> (${s[2]} EN)<br><small>${s[1]}</small></button>`}).join('')+`<div id="log">${B.log.slice(-3).join('<br>')}</div>`);
-document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>use(+b.dataset.s))}
-function hitB(d,big){sh=big?14:8;lg=14;SFX.hit();fl('-'+d,'#ff8a1f',240,85)}
-function use(i){if(B.busy||B.over)return;B.busy=1;B.pe-=SK[i][2];let m='',d;
-if(i==0){d=Math.round(10+S.STR*.6+Math.random()*4);B.bh-=d;m=`Repetición Pesada: ${d} de daño`;hitB(d)}
-if(i==1){d=Math.round(6+(S.STA+S.ENG)*.28+Math.random()*3);B.bh-=d;B.be-=25;m=`Sprint Metabólico: ${d} de daño y Braulio pierde aire`;hitB(d)}
-if(i==2){d=Math.round(10+S.HP*.3);B.hp=Math.min(B.ph,B.hp+d);m=`Respiración y Técnica: recuperas ${d} HP`;SFX.up();fl('+'+d+' HP','#39ff6a',90,85)}
-if(i==3){d=Math.round(40+S.ENG*.5);B.bh-=d;m=`¡GOLPE DE GLUCÓGENO! ${d} de daño`;hitB(d,1)}
-B.log.push(m);bpanel();if(B.bh<=0)return setTimeout(()=>fin(1),900);setTimeout(bturn,1000)}
-function bturn(){const ex=B.be<=0,d=Math.round((13+Math.random()*7)*(ex?.45:1)*(1-S.REC/220)*2);B.be=Math.max(0,B.be-18);
-if(ex&&Math.random()<.35)B.log.push('Braulio está sin aire y se apoya en las cuerdas: pierde el turno 😮‍💨');else{B.hp-=d;bl=14;sh=-10;SFX.hurt();fl('-'+d,'#ff4d4d',90,85);B.log.push(`Braulio te pega: -${d} HP${ex?' (débil, sin energía)':''}`)}
-B.pe=Math.min(B.pem,B.pe+8);if(B.hp<=0)return setTimeout(()=>fin(0),900);B.busy=0;bpanel()}
-function fin(w){B.over=1;clearInterval(mus);clearG();w?SFX.up():SFX.miss();const g=goal,n=(c,t,ok,bad)=>`<p>${c?'✅':'⚠️'} ${c?ok:bad}</p>`;
-P(`<h2>${w?'🏆 ¡VICTORIA!':'💀 Derrota'}</h2><p>${w?'Derrotaste a Braulio: la ciencia le ganó al broscience.':'Braulio resistió esta vez. Revisa tus hábitos y vuelve a intentarlo.'}</p><h2>📋 Reporte Final Nutricional</h2>`+
-n(T.c>=10,0,`Carbohidratos: buen nivel en ${T.c}/14 días. Eso mantuvo tu glucógeno y energía.`,`Carbohidratos suficientes solo ${T.c}/14 días. Sin ellos hay hipoglucemia, poca energía y no se desbloquea el Golpe de Glucógeno.`)+
-n(T.p>=10,0,`Proteína: meta alcanzada ${T.p}/14 días. Favorece reparación y fuerza.`,`Proteína suficiente solo ${T.p}/14 días. Si no llegas a ~70-85% de la meta, el músculo no se repara bien (catabolismo).`)+
-n(T.j<=2,0,`Chatarra: solo ${T.j} días. Tu salud metabólica lo agradece.`,`Comiste chatarra ${T.j} días. El exceso de grasas y azúcares simples provoca pesadez y baja tu resistencia.`)+
-n(T.ok>=9,0,`Calorías en rango ±15% ${T.ok}/14 días: buen control de porciones.`,`Calorías en rango solo ${T.ok}/14 días. Compara tu plato con la meta de ${g.k} kcal.`)+
-n(T.evn&&T.ev/T.evn>=.6,0,`Decisiones: ${T.ev}/${T.evn} eventos bien resueltos. Pensamiento crítico ante mitos.`,`Decisiones: ${T.ev}/${T.evn} eventos bien resueltos. Desconfía de promesas milagro y protege tu sueño.`)+
-n(T.rest>=2,0,`Descansaste ${T.rest} días: el músculo crece mientras se recupera.`,`Solo descansaste ${T.rest} día(s). Incluye descanso activo y 7-8 h de sueño.`)+
-`<small>Este juego es educativo y no sustituye a un nutriólogo o médico.</small><div class="row"><button class="pri" id="ag">Jugar de nuevo</button></div>`);$('ag').onclick=()=>{SFX.click();menu()}}
-// ---------- DIBUJO ----------
-function R(c,a,b,w,h){x.fillStyle=c;x.fillRect(a|0,b|0,w|0,h|0)}
-function bgd(){R('#14181f',0,0,320,180);R('#1b212a',0,0,320,115);R('#2b2118',0,118,320,62);R('#3a2d20',0,118,320,3);
-for(let i=0;i<6;i++){R('#222a35',14+i*52,50,36,4);R('#2b3441',14+i*52,54,4,64)}
-x.font='bold 15px monospace';x.fillStyle=mode==='battle'?'#ff4d4d':'#39ff6a';x.fillText(mode==='battle'?'★ RING FITNESS ★':'MACRO GYM',mode==='battle'?88:110,28);
-R('#555',20,106,18,3);R('#555',16,100,4,15);R('#555',38,100,4,15);R('#555',270,108,26,3);R('#555',266,102,4,13);R('#555',296,102,4,13)}
-function person(cx,fy,o={}){const b=Math.min(1,(S.STR+S.STA+S.REC)/300),tw=12+b*10|0,aw=3+b*5|0,hp=o.hop||0,y=fy-hp+((aT>>5)&1&&!o.hop?1:0),sk=PL.skin,sh=PL.shirt,up=o.up?10:0;
-R(sk,cx-5,y-11,4,11);R(sk,cx+1,y-11,4,11);R(PL.pants,cx-tw/2,y-17,tw,7);R(sh,cx-tw/2,y-31,tw,14);
-R(sk,cx-tw/2-aw,y-31-up,aw,12+up);R(sk,cx+tw/2,y-31-up,aw,12+up);R(sk,cx-4,y-39,8,8);if(PL.cap){R(PL.shirt,cx-5,y-42,10,4);R(PL.shirt,cx+1,y-40,6,2)}else R(PL.hair,cx-4,y-40,8,3);if(PL.beard)R(PL.hair,cx-4,y-33,8,2);R('#000',cx-2,y-36,1,1);R('#000',cx+1,y-36,1,1);glasses(cx,y-39,0,PL.gl)}
-function brau(cx,fy,ex){R('#e0a67a',cx-6,fy-14,4,14);R('#e0a67a',cx+2,fy-14,4,14);R('#111',cx-10,fy-20,20,7);R('#d33',cx-17,fy-38,34,19);R('#fff',cx-6,fy-32,12,3);
-R('#e0a67a',cx-28,fy-38,11,18);R('#e0a67a',cx+17,fy-38,11,18);R('#8a5a2b',cx+22,fy-48,5,10);R('#e0a67a',cx-5,fy-49,10,10);R('#111',cx-5,fy-46,10,3);R('#ff8a1f',cx-5,fy-50,10,2);
-if(ex){R('#6cf',cx+8,fy-52+(aT>>3)%4,2,3);R('#6cf',cx-10,fy-48+(aT>>3)%3,2,3)}}
-function bars(px,py,v,m,c,lb){R('#000',px,py,100,7);R(c,px+1,py+1,Math.max(0,98*v/m),5);x.font='8px monospace';x.fillStyle='#fff';x.fillText(lb,px,py-2)}
-function drawScene(){
-if(mode==='battle'){R('#3a2a2a',0,118,320,62);R('#ff4d4d',10,80,300,2);R('#ff4d4d',10,92,300,2);R('#ff4d4d',10,104,300,2);R('#888',6,76,5,45);R('#888',309,76,5,45);
-const px=90+(lg>0?lg:0)+(sh<0?(aT%2?2:-2):0),bx=235-(bl>0?bl:0)+(sh>0?(aT%2?2:-2):0);person(px,140,{up:lg>2});brau(bx,140,B&&B.be<=0);lg*=.85;bl*=.85;sh*=.85;
-if(B){bars(10,16,B.hp,B.ph,'#39ff6a','TÚ HP');bars(10,34,B.pe,B.pem,'#4db8ff','TÚ EN');bars(210,16,Math.max(0,B.bh),B.bhm,'#ff8a1f','BRAULIO HP');bars(210,34,B.be,B.bem,'#ffd84d','BRAULIO ENERGÍA')}return}
-const p=(1+Math.sin(aT*.14))/2;
-if(act==='bench'){R('#555',100,126,100,5);R('#444',110,131,4,12);R('#444',186,131,4,12);R(PL.skin,112,114,9,9);R(PL.hair,112,113,4,9);R(PL.shirt,123,115,36,10);R(PL.pants,159,117,22,8);R(PL.skin,181,120,5,14);
-const h=p*22;R(PL.skin,135,115-h,5,h);R(PL.skin,150,115-h,5,h);R('#bbb',112,113-h,66,3);R('#222',108,108-h,5,13);R('#222',177,108-h,5,13)}
-else if(act==='rope'){const hp=Math.abs(Math.sin(aT*.2))*9,cs=Math.cos(aT*.2);person(160,135,{hop:hp});for(let i=-18;i<=18;i+=2)R('#ff8a1f',160+i,135-hp-20+cs*28*(1-(i/18)*(i/18)),2,2)}
-else if(act==='rest'){R('#2a4d8f',90,130,140,6);R(PL.skin,100,120,9,9);R(PL.hair,99,120,4,9);R(PL.shirt,110,121,34,9);R(PL.pants,144,123,24,8);R(PL.skin,168,125,22,5);x.font='bold 12px monospace';x.fillStyle='#4db8ff';x.fillText('Z',118,110-(aT>>3)%8);x.fillText('z',130,100-(aT>>3)%8)}
-else person(160,138,{})}
-// ---------- ARTE DEL MENÚ ----------
-function disc(c,cx,cy,r){for(let d=-r;d<=r;d++){const w=Math.sqrt(r*r-d*d);R(c,cx-w,cy+d,w*2,1)}}
-function O(c,a,b,w,h){R('#0a0a0a',a-1,b-1,w+2,h+2);R(c,a,b,w,h)}
-function dumbbell(cx,cy,s,c){O('#9aa5b1',cx-20*s,cy-2*s,40*s,4*s);for(const d of[-1,1]){O(c,cx+d*15*s-3*s,cy-11*s,6*s,22*s);O('#2b2f36',cx+d*9*s-2*s,cy-8*s,4*s,16*s);R('#fff',cx+d*15*s-2*s,cy-9*s,s,8*s)}}
-function kettle(cx,cy,r,c){O('#222',cx-r*.65,cy-r*1.5,r*1.3,r*.45);O('#222',cx-r*.65,cy-r*1.5,r*.4,r);O('#222',cx+r*.25,cy-r*1.5,r*.4,r);disc('#0a0a0a',cx,cy,r+1);disc(c,cx,cy,r);disc('#fff',cx-r*.4,cy-r*.4,Math.max(1,r*.18));R('#0a0a0a',cx-r*.4,cy+r*.1,r*.8,2)}
-function plate(cx,cy,r,c){disc('#0a0a0a',cx,cy,r+1);disc(c,cx,cy,r);disc('#0a0a0a',cx,cy,r*.62);disc(c,cx,cy,r*.5);disc('#0a0a0a',cx,cy,r*.2)}
-function tub(cx,cy,s){O('#e8edf2',cx-12*s,cy-14*s,24*s,28*s);O('#222',cx-13*s,cy-19*s,26*s,6*s);R('#ff8a1f',cx-12*s,cy-7*s,24*s,12*s);x.font=`bold ${8*s|0}px monospace`;x.fillStyle='#000';x.fillText('PRO',cx-9*s,cy+2*s)}
-function pills(cx,cy,s,c){O(c,cx-6*s,cy-8*s,12*s,16*s);O('#fff',cx-7*s,cy-13*s,14*s,5*s);R('#fff',cx-5*s,cy-4*s,10*s,7*s);R('#39ff6a',cx-1*s,cy-3*s,2*s,5*s);R('#39ff6a',cx-3*s,cy-1*s,6*s,2*s)}
-function shaker(cx,cy,s){O('#4db8ff',cx-7*s,cy-12*s,14*s,24*s);O('#222',cx-8*s,cy-17*s,16*s,6*s);R('#fff',cx-7*s,cy-2*s,14*s,5*s);R('#cfefff',cx-5*s,cy-10*s,2*s,10*s)}
-function banana(cx,cy,s){for(let i=0;i<=10;i++){const t=i/10-.5,px=cx+t*30*s,py=cy+t*t*44*s;R('#0a0a0a',px-1,py-1,5*s+2,5*s+2)}for(let i=0;i<=10;i++){const t=i/10-.5,px=cx+t*30*s,py=cy+t*t*44*s;R('#ffd84d',px,py,5*s,5*s)}}
-function raysBg(){R('#0d0f12',0,0,320,270);const cx=160,cy=125;for(let i=0;i<20;i++){const a=i*Math.PI/10+aT*.004,b=a+Math.PI/20;x.fillStyle=i%2?'#161c25':'#10241a';x.beginPath();x.moveTo(cx,cy);x.lineTo(cx+400*Math.cos(a),cy+400*Math.sin(a));x.lineTo(cx+400*Math.cos(b),cy+400*Math.sin(b));x.fill()}
-const g=x.createRadialGradient(cx,cy,10,cx,cy,150);g.addColorStop(0,'rgba(57,255,106,.25)');g.addColorStop(1,'rgba(57,255,106,0)');x.fillStyle=g;x.fillRect(0,0,320,270)}
-function barbell(){O('#9aa5b1',6,102,308,5);R('#dfe6ee',6,103,308,1);for(const d of[0,1]){const e=d?1:-1,c=d?296:24;O('#ff4d4d',c-4-(d?0:0),82,9,48);O('#2b2f36',c+(d?-12:6),88,6,36);R('#fff',c-3,85,1,12)}}
-function bust(cx,oy){x.save();x.translate(0,oy);const sk='#e8a77c',sd='#b9764f',hl='#f7c9a0',dk='#0a0a0a';
-for(let y=76;y<158;y+=2){const w=Math.round(38-(y-76)*.22);R(dk,cx-w-1,y,w*2+2,2)}
-for(let y=76;y<158;y+=2){const w=Math.round(38-(y-76)*.22);R(sk,cx-w,y,w*2,2)}
-for(let y=66;y<80;y+=2){const w=Math.round(12+(y-66)*1.8);R(dk,cx-w-1,y,w*2+2,2);R(sk,cx-w,y,w*2,2)}
-for(const d of[-1,1]){const ux=d<0?cx-76:cx+32,fx=d<0?cx-76:cx+63,fi=d<0?cx-78:cx+61;O(sk,ux,70,44,17);O(sk,fx,42,13,40);O(sk,fi,34,17,12);O(sk,d<0?cx-46:cx+28,66,18,24);
-R(hl,d<0?cx-64:cx+42,72,22,5);R(sd,d<0?cx-64:cx+42,84,22,3);R(sd,fi+4,38,1,6);R(sd,fi+9,38,1,6);R(hl,d<0?cx-44:cx+30,68,14,3)}
-R(sd,cx-1,80,2,22);R(sd,cx-34,98,32,3);R(sd,cx+2,98,32,3);R(hl,cx-28,84,16,4);R(hl,cx+12,84,16,4);R(sd,cx-22,94,4,2);R(sd,cx+18,94,4,2);
-R(sd,cx-15,104,30,46);for(let r=0;r<4;r++)for(let c=0;c<2;c++){R(sk,cx-14+c*15,106+r*11,13,9);R(hl,cx-14+c*15,106+r*11,13,2)}
-O(sk,cx-6,60,12,8);R(sd,cx-6,64,12,4);
-R('#2b6a7a',cx-23,150,46,8);R('#ccc',cx-4,150,8,8);R('#0a0a0a',cx-2,152,4,4);
-O(sk,cx-10,40,20,22);R(sd,cx-10,58,20,3);R(sk,cx-12,48,2,6);R(sk,cx+10,48,2,6);
-R('#fff',cx-7,48,5,3);R('#2b6cb0',cx-5,48,3,3);R('#000',cx-4,49,1,1);R('#fff',cx+2,48,5,3);R('#2b6cb0',cx+3,48,3,3);R('#000',cx+4,49,1,1);
-R('#8a6b1f',cx-8,45,7,2);R('#8a6b1f',cx+1,45,7,2);R(sd,cx-1,51,2,4);R('#8a3b2b',cx-4,57,8,1);
-O('#f2c94c',cx-11,35,22,8);O('#f2c94c',cx-13,30,5,9);O('#f2c94c',cx-6,26,5,13);O('#f2c94c',cx+1,24,5,15);O('#f2c94c',cx+7,28,5,11);O('#f2c94c',cx+11,33,4,8);
-R('#fff3a0',cx-5,28,1,6);R('#fff3a0',cx+2,26,1,8);R('#fff3a0',cx-10,37,6,1);x.restore()}
-function menuTitle(){const b=Math.sin(aT*.06)*2;x.textAlign='center';x.lineJoin='round';x.font='900 54px Impact,"Arial Black",sans-serif';
-const tx=(t,y,c1,c2,sh)=>{x.lineWidth=9;x.strokeStyle='#000';x.strokeText(t,160,y);x.fillStyle=sh;x.fillText(t,163,y+3);const g=x.createLinearGradient(0,y-42,0,y);g.addColorStop(0,c1);g.addColorStop(1,c2);x.fillStyle=g;x.fillText(t,160,y)};
-tx('MACRO',190+b,'#fff36a','#39ff6a','#ff8a1f');tx('CLASH',238-b,'#ff8a1f','#ff4d4d','#ffd84d');
-x.font='bold 11px monospace';x.lineWidth=4;x.strokeStyle='#000';x.strokeText('Camino al Olimpo del Gym',160,258);x.fillStyle='#fff';x.fillText('Camino al Olimpo del Gym',160,258);x.textAlign='left';x.lineWidth=1}
-function drawMenu(){raysBg();barbell();bust(160,Math.round(Math.sin(aT*.07)));
-dumbbell(46,44,1.1,'#ff8a1f');dumbbell(274,44,1.1,'#39ff6a');kettle(52,160,17,'#ff4d4d');kettle(266,168,15,'#4db8ff');
-shaker(300,150,1);banana(24,205,1);plate(34,232,15,'#ff8a1f');plate(54,246,12,'#ff4d4d');tub(286,226,1.1);pills(68,249,1,'#ff8a1f');pills(252,251,1,'#39ff6a');
-menuTitle()}
-// ---------- DECORADOS / PERSONAJES / HISTORIA ----------
-const QS=2.25;
-const rnd=n=>Math.random()*n|0,pk=a=>a[rnd(a.length)];
+/* Confeti: vendor/ local -> CDN -> respaldo propio (miniConfetti). El juego funciona igual sin ninguno. */
+(function(){function L(u,n){var e=document.createElement('script');e.async=true;e.src=u;e.onerror=function(){n&&n()};document.head.appendChild(e)}
+L('vendor/confetti.browser.min.js',function(){L('https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js')})})();
+</script>
+<style>
+:root{
+ --bg:#0B0E14;--p1:#131822;--p2:#1C2333;--ln:#2B354A;--tx:#F1F5F9;--mu:#94A3B8;
+ --ok:#22C55E;--ok2:#4ADE80;--act:#A855F7;--act2:#C084FC;--bad:#EF4444;--info:#38BDF8;
+ --fd:'Press Start 2P','Courier New',monospace;
+ --fb:Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+ --fm:'JetBrains Mono',ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg) radial-gradient(900px 500px at 50% -10%,#1a2236 0,transparent 70%) no-repeat;color:var(--tx);font:15px/1.5 var(--fb);min-height:100vh}
+#app{max-width:1280px;margin:0 auto;padding:12px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.logo{font-family:var(--fd);font-size:clamp(12px,2.6vw,20px);margin:0;color:var(--ok2);text-shadow:3px 3px 0 #166534}
+.logo em{font-style:normal;color:var(--act);text-shadow:3px 3px 0 #4C1D95}
+.logo small{display:block;font:600 12px var(--fb);color:var(--mu);text-shadow:none;margin-top:4px}
+.hbtns{display:flex;gap:6px;align-items:center}
+#day{font:800 12px var(--fm);color:var(--info);background:var(--p2);border:1px solid var(--ln);padding:8px 10px;border-radius:8px;white-space:nowrap}
+#day:empty{display:none}
+button{font:600 14px var(--fb);color:var(--tx);background:var(--p2);border:1px solid var(--ln);border-bottom-width:3px;border-radius:10px;padding:10px 14px;cursor:pointer;transition:transform .12s,border-color .2s,background .2s,box-shadow .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button:hover:not(:disabled){border-color:var(--info);transform:translateY(-1px)}
+button:active:not(:disabled){transform:translateY(1px)}
+button:focus-visible{outline:2px solid var(--info);outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.icon{min-width:44px;min-height:42px;padding:6px 10px;font-size:18px}
+.btn-main{background:var(--ok);border-color:#15803D;color:#04140e;font-weight:800}
+.btn-act{background:var(--act);border-color:#7E22CE;color:#14041F;font-weight:800}
+.btn-main:hover:not(:disabled),.btn-act:hover:not(:disabled){border-color:#fff}
+.big{font-family:var(--fd);font-size:12px;padding:16px 22px}
+#layout{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:1060px){#layout{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:start}#stage{position:sticky;top:12px}#layout.solo{grid-template-columns:minmax(0,780px);justify-content:center}#layout.solo #stage{position:static}}
+@media(max-width:1059px){#app{max-width:760px}}
+.frame{background:var(--p1);border:1px solid var(--ln);border-radius:14px;padding:6px;box-shadow:0 14px 40px #0008,inset 0 1px 0 #ffffff0d}
+canvas#cv{width:100%;aspect-ratio:16/9;display:block;image-rendering:pixelated;border-radius:9px;background:#05070b;touch-action:manipulation}
+#stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:8px}
+.st{background:var(--p1);border:1px solid var(--ln);border-radius:10px;padding:6px 8px;min-width:0}
+.st span{display:block;font-size:11px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st b{font:800 17px var(--fm)}
+.bar{height:6px;background:#070a10;border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px;transition:width .45s ease}
+@media(max-width:520px){#stats{grid-template-columns:repeat(3,minmax(0,1fr))}#app{padding:8px}.logo small{display:none}}
+#panel{background:var(--p1);border:1px solid var(--ln);border-radius:14px;padding:16px;animation:in .3s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h2{font:400 14px/1.6 var(--fd);color:var(--act2);margin:0 0 10px}
+h3{font:400 11px/1.6 var(--fd);color:var(--info);margin:18px 0 8px}
+p{margin:0 0 10px}
+.mu{color:var(--mu);font-size:13px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.col{display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center}
+.col button{min-width:min(280px,100%)}
+.blk{display:block;width:100%;text-align:left;margin:8px 0;padding:12px 14px}
+.blk small{display:block;color:var(--mu);font-weight:400;margin-top:2px}
+.btn-act small,.btn-main small{color:#14041F}
+kbd{font:800 11px var(--fm);border:1px solid currentColor;border-radius:4px;padding:0 5px;opacity:.75}
+@media(hover:none){kbd{display:none}}
+.tag{display:inline-block;padding:4px 9px;border-radius:99px;font-size:12px;font-weight:600;margin:0 4px 6px 0;border:1px solid}
+.t-ok{color:var(--ok2);border-color:#22C55E55;background:#22C55E18}
+.t-warn{color:var(--act2);border-color:#A855F755;background:#A855F718}
+.t-bad{color:#fca5a5;border-color:#ef444466;background:#ef44441c}
+.t-info{color:var(--info);border-color:#38bdf855;background:#38bdf818}
+/* Cocina */
+#meters{position:sticky;top:0;z-index:5;background:var(--p1);padding:6px 0 8px;border-bottom:1px solid var(--ln);margin-bottom:10px}
+.meter{display:grid;grid-template-columns:62px 1fr 96px;gap:8px;align-items:center;margin:5px 0;font-size:12px}
+.meter .track{position:relative;height:12px;background:#070a10;border-radius:6px;overflow:hidden;border:1px solid var(--ln)}
+.meter .zone{position:absolute;top:0;bottom:0;background:#22C55E30;border-left:1px dashed var(--ok2);border-right:1px dashed var(--ok2)}
+.meter .fill{position:absolute;top:2px;bottom:2px;left:0;border-radius:4px;transition:width .4s ease,background .3s}
+.meter output{font:500 11px var(--fm);text-align:right;white-space:nowrap}
+#labels{min-height:32px;margin-top:6px}
+#plate{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:6px 0 0}
+.slot{border:1px dashed var(--ln);border-radius:8px;text-align:center;font-size:20px;height:36px;line-height:34px;color:var(--ln);background:#0b0e1466;padding:0}
+button.slot{border-style:solid;color:var(--tx)}
+#fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.fd{text-align:left;padding:9px;display:flex;flex-direction:column;gap:4px;font-size:13px;line-height:1.3;position:relative}
+.fd .em{font-size:24px;line-height:1}
+.fd .mac{font:500 10.5px var(--fm);color:var(--mu)}
+.fd .mac b{color:var(--tx)}
+.fd .ds{font-weight:400;font-size:11.5px;color:var(--mu)}
+.fd .up{position:absolute;top:6px;right:6px;font-size:9px;font-weight:800;color:#fca5a5;border:1px solid #ef444466;border-radius:4px;padding:0 4px}
+.fd[aria-pressed=true]{border-color:var(--ok2);background:#10291f;box-shadow:0 0 0 1px var(--ok2),0 0 18px #22C55E33}
+@media(max-width:420px){#fg{grid-template-columns:repeat(2,minmax(0,1fr))}.meter{grid-template-columns:52px 1fr 86px}}
+/* Personalización */
+.cr{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:9px 0}
+.cr b{min-width:120px;font-size:13px}
+.sw{width:32px;height:32px;padding:0;border-radius:50%;border:3px solid var(--ln)}
+.sw[aria-pressed=true]{border-color:#fff;box-shadow:0 0 0 2px var(--ok)}
+.opt{padding:6px 10px;font-size:13px}
+.opt[aria-pressed=true]{background:var(--ok);color:#04140e;border-color:#15803D}
+/* Batalla */
+#skills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#skills .blk{margin:0;height:100%}
+#log{font:500 12px var(--fm);color:var(--mu);background:#070a10;border-radius:8px;padding:10px;margin-top:10px;min-height:86px}
+#log div:last-child{color:var(--tx)}
+/* Resumen */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.kpi{background:var(--p2);border-radius:10px;padding:10px;border:1px solid var(--ln)}
+.kpi b{display:block;font:800 20px var(--fm)}
+.kpi span{font-size:11px;color:var(--mu)}
+.heat{display:grid;grid-template-columns:78px repeat(14,minmax(0,1fr));gap:3px;align-items:center;font-size:11px;color:var(--mu)}
+.heat i{height:18px;border-radius:3px;background:var(--p2);font:800 9px/18px var(--fm);text-align:center;font-style:normal;color:#04140e}
+.heat i.g{background:var(--ok2)}.heat i.w{background:var(--act)}.heat i.r{background:var(--bad);color:#fff}.heat i.b{background:var(--info)}
+.chart{display:flex;gap:3px;height:110px;align-items:flex-end;position:relative;background:#070a10;border-radius:8px;padding:6px}
+.chart div{flex:1;border-radius:3px 3px 0 0;min-height:2px}
+.chart .goal{position:absolute;left:6px;right:6px;border-top:1px dashed var(--tx);opacity:.5;height:0}
+.tip{background:var(--p2);border-left:4px solid var(--act);border-radius:8px;padding:10px 12px;margin:8px 0;font-size:14px}
+.tip.g{border-color:var(--ok)}
+a{color:var(--info)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ===== v1.1 · Paleta neón sobre carbón ===== */
+:root{--bg:#090A0F;--p1:#11131C;--p2:#1A1D2B;--ln:#2D2A4A;--tx:#F8FAFC;--mu:#94A3B8;
+ --ok:#22C55E;--ok2:#4ADE80;--act:#A855F7;--act2:#C084FC;--bad:#EF4444;--info:#38BDF8;--cy:#22D3EE}
+body{background:radial-gradient(800px 460px at 12% -8%,#22D3EE14,transparent 70%) no-repeat,radial-gradient(900px 520px at 88% -10%,#A855F71f,transparent 70%) no-repeat,var(--bg)}
+.logo{color:var(--cy);text-shadow:3px 3px 0 #0E4A5C,0 0 20px #22D3EE55}
+.logo em{color:var(--act2);text-shadow:3px 3px 0 #4C1D95,0 0 20px #A855F766}
+.frame,#panel{border-color:var(--ln);box-shadow:0 14px 40px #000a,0 0 0 1px #A855F714,0 0 26px #A855F70f,inset 0 1px 0 #ffffff0d}
+.st,.kpi,.tip,#day{border-color:var(--ln)}
+#day{color:var(--cy)}
+.bar{background:#07080D}#log{background:#07080D}
+h2{text-shadow:0 0 14px #C084FC44}
+button{background:var(--p2);border-color:var(--ln)}
+button:hover:not(:disabled){border-color:var(--cy);box-shadow:0 0 14px #22D3EE33}
+button:focus-visible{outline-color:var(--cy)}
+.btn-main{background:var(--cy);border-color:#0E7490;color:#04141A}
+.btn-act{background:var(--act);border-color:#7E22CE;color:#14041F}
+.btn-main:hover:not(:disabled){border-color:#fff;box-shadow:0 0 18px #22D3EE66}
+.btn-act:hover:not(:disabled){border-color:#fff;box-shadow:0 0 18px #A855F766}
+.opt[aria-pressed=true]{background:var(--cy);color:#04141A;border-color:#0E7490}
+.sw[aria-pressed=true]{box-shadow:0 0 0 2px var(--cy),0 0 12px #22D3EE66}
+.fd[aria-pressed=true]{border-color:var(--cy);background:#0E2330;box-shadow:0 0 0 1px var(--cy),0 0 18px #22D3EE33}
+/* Guía y exportación */
+.modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:#05060Acc;backdrop-filter:blur(3px)}
+.modal[hidden]{display:none}
+.mbox{width:min(640px,100%);max-height:100%;overflow:auto;background:var(--p1);border:1px solid var(--ln);border-radius:16px;padding:18px;box-shadow:0 0 0 1px #A855F733,0 0 40px #A855F72a,0 20px 60px #000;outline:none}
+.mhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}.mhead h2{margin:0}
+.mbox ul{margin:0 0 10px;padding-left:20px}.mbox li{margin:5px 0;font-size:14px}
+.gcard{background:var(--p2);border:1px solid var(--ln);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
+pre.rep{font:500 11px/1.5 var(--fm);background:#07080D;border:1px solid var(--ln);border-radius:8px;padding:10px;max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-word;color:var(--mu)}
+details{margin-top:8px}summary{cursor:pointer}
+</style>
+</head>
+<body>
+<div id="app">
+ <header>
+  <h1 class="logo">MACRO-<em>CLASH</em><small>Camino al Olimpo del Gym</small></h1>
+  <div class="hbtns">
+   <b id="day"></b>
+   <button class="icon" id="gd" title="Guía y mecánicas (G)" aria-label="Abrir guía y mecánicas">📖</button>
+   <button class="icon" id="home" title="Volver al menú" aria-label="Volver al menú" hidden>🏠</button>
+   <button class="icon" id="mu" title="Sonido (M)" aria-label="Silenciar">🔊</button>
+  </div>
+ </header>
+ <div id="layout">
+  <section id="stage">
+   <div class="frame"><canvas id="cv" width="640" height="360" role="img" aria-label="Escena del juego"></canvas></div>
+   <div id="stats"></div>
+  </section>
+  <main id="panel" aria-live="polite"></main>
+ </div>
+ <noscript><p>Este juego necesita JavaScript activado.</p></noscript>
+</div>
+<div id="gm" class="modal" hidden>
+ <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="gt" tabindex="-1">
+  <div class="mhead"><h2 id="gt">📖 Guía y mecánicas</h2><button class="icon" id="gx" aria-label="Cerrar guía">✕</button></div>
+  <div class="gcard"><b>🎯 Objetivo educativo.</b> Aprender cómo la comida, el descanso y tus decisiones diarias cambian tu rendimiento, y a distinguir mitos de evidencia. Tu dieta decide cómo entrenas.</div>
+  <div class="gcard"><b>🏁 Objetivo del juego.</b> Prepárate durante 14 días y vence a Braulio "El Ciclado" Broscience en la batalla del día 15.</div>
+  <h3>Cada día</h3>
+  <ul>
+   <li><b>1. Cocina:</b> arma hasta 4 platos y acerca las barras a la franja verde (kcal, proteína, carbos y grasas).</li>
+   <li><b>2. Gimnasio:</b> Press de Banca (Fuerza), Cuerda (Resistencia) o Descanso. Encadena aciertos para multiplicar.</li>
+   <li><b>3. Dilema:</b> algunos días enfrentas un mito o decisión; la explicación te dice por qué.</li>
+  </ul>
+  <h3>Reglas clave</h3>
+  <ul>
+   <li>🍞 Carbos &lt; 35 % de tu meta → glucógeno bajo: ganancias a la mitad.</li>
+   <li>🥩 Proteína &lt; 70 % → catabolismo: ese día no sube la Fuerza.</li>
+   <li>🔥 Kcal dentro de ±15 % → +25 % de ganancias. Más de 130 % o 2+ ultraprocesados → pesadez (cardio a la mitad).</li>
+   <li>😓 Energía &lt; 35 → −30 % de ganancias. Descansar la recupera.</li>
+   <li>⚡ Golpe de Glucógeno: se desbloquea con 8 días de buenos carbohidratos.</li>
+  </ul>
+  <h3>Controles</h3>
+  <p class="mu">Espacio / Enter / clic: entrenar · 1-4: opciones y habilidades · M: sonido · G: esta guía · Esc: cerrar o saltar historia.</p>
+  <p class="mu">La partida se pausa mientras la guía está abierta. Juego educativo: no sustituye a un nutriólogo o médico.</p>
+  <button class="btn-main" id="gok">Entendido</button>
+ </div>
+</div>
+<script>
+'use strict';
+/* =====================================================================
+   1. UTILIDADES
+   ===================================================================== */
+const $=id=>document.getElementById(id);
+const cv=$('cv'),X=cv.getContext('2d');
+X.imageSmoothingEnabled=false;
+const rnd=n=>Math.random()*n|0;
+const pick=a=>a[rnd(a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const E01=(a,b,v)=>clamp((v-a)/(b-a),0,1);
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
-let cast=[],lastFeat=0,fdt=1,lastT=performance.now(),ST=null;
-function ln(x0,y0,x1,y1,c,w=1){const n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0),1)|0;for(let i=0;i<=n;i++)R(c,x0+(x1-x0)*i/n,y0+(y1-y0)*i/n,w,w)}
-function star(cx,cy,s,c){R(c,cx-s,cy,2*s+1,1);R(c,cx,cy-s,1,2*s+1);R('#fff',cx,cy,1,1)}
-// --- decorados del gimnasio ---
-function treadmill(cx,b){O('#1a1d23',cx-21,b-3,42,3);O('#2b2f36',cx-20,b-10,36,8);for(let i=0;i<9;i++)R('#434b56',cx-19+(i*4+(aT>>2))%34,b-9,2,6);O('#9aa5b1',cx+13,b-40,3,32);O('#9aa5b1',cx-9,b-32,25,2);O('#222',cx+7,b-47,17,9);R('#0a2a14',cx+9,b-45,13,5);R('#39ff6a',cx+10,b-44,(aT>>4)&1?3:6,3)}
-function cable(cx,b){O('#2b2f36',cx-24,b-62,6,62);O('#2b2f36',cx+18,b-62,6,62);O('#2b2f36',cx-24,b-65,48,6);for(let i=0;i<8;i++)O('#9aa5b1',cx-6,b-56+i*6,12,4);R('#ff4d4d',cx-6,b-37,12,2);R('#ddd',cx-21,b-58,1,26);R('#ddd',cx+21,b-58,1,26);O('#ff4d4d',cx-24,b-32,6,3);O('#ff4d4d',cx+18,b-32,6,3);R('#111',cx-26,b-2,52,2)}
-function mirror(){O('#7a8896',118,54,86,44);R('#243447',120,56,82,40);R('#2f4560',120,56,82,12);ln(132,96,152,56,'#4f7396',2);ln(150,96,162,66,'#3d5c7c');ln(176,96,190,64,'#4f7396')}
-function poster(a,b,c1,k){O('#f2e6c9',a,b,22,30);R(c1,a+2,b+2,18,5);if(!k){disc('#e0a67a',a+11,b+13,3);R('#d33',a+6,b+17,10,6);R('#e0a67a',a+3,b+15,3,3);R('#e0a67a',a+16,b+15,3,3);R('#2a4d8f',a+7,b+23,8,4)}else{R('#555',a+3,b+17,16,2);R('#222',a+3,b+13,3,10);R('#222',a+16,b+13,3,10);R('#ff4d4d',a+6,b+15,2,6);R('#ff4d4d',a+14,b+15,2,6)}}
-function clock(cx,cy){disc('#0a0a0a',cx,cy,10);disc('#e8edf2',cx,cy,9);const dt=new Date(),m=dt.getMinutes()+dt.getSeconds()/60,h=(dt.getHours()%12)+m/60,am=m/60*6.283-1.571,ah=h/12*6.283-1.571;ln(cx,cy,cx+Math.cos(am)*7,cy+Math.sin(am)*7,'#111');ln(cx,cy,cx+Math.cos(ah)*4,cy+Math.sin(ah)*4,'#d33')}
-function plantD(){R('#2f9e44',304,98,4,16);R('#37b24d',309,92,4,22);R('#2f9e44',314,100,4,14);O('#b5651d',305,114,13,10);R('#8a4a12',305,116,13,1)}
-function floorStuff(){O('#4db8ff',6,142,34,5);R('#2f8fc4',6,146,34,1);kettle(300,140,6,'#ff4d4d');kettle(314,142,5,'#4db8ff');plate(286,144,5,'#ff8a1f')}
-function decor(){for(const a of[36,140,244]){R('#fff7c2',a,3,40,3);R('#e8e0a0',a,6,40,1)}
-R('#d33',12,30,72,11);x.font='bold 7px monospace';x.fillStyle='#fff';x.fillText('NO PAIN NO GAIN',17,38);
-poster(18,58,'#d33',0);poster(280,58,'#4db8ff',1);mirror();clock(252,38);treadmill(66,124);cable(238,124);plantD();floorStuff()}
-// --- personajes ---
-const SKN=[['#e0a67a','#2b1b10'],['#c68a5c','#111'],['#f0c29a','#8a5a2b'],['#8d5a3a','#111'],['#e8b98e','#d9b24c']],SHC=['#e84a5f','#4db8ff','#ffd84d','#39ff6a','#b36bff','#ff8a1f','#e8edf2','#2dd4bf'],PAC=['#2a4d8f','#222','#444b57','#6b2a2a','#1f5a3a'];
-function look(){const k=pk(SKN);return{skin:k[0],hair:k[1],shirt:pk(SHC),pants:pk(PAC),tw:12+rnd(8),aw:3+rnd(3),th:14,lw:4,cap:Math.random()<.2?pk(SHC):0,beard:Math.random()<.15}}
-function npc(cx,fy,o){
-const sk=o.skin||'#e0a67a',shi=o.shirt||'#9aa5b1',pa=o.pants||'#2a4d8f',ha=o.hair||'#2b1b10',tw=o.tw||14,aw=o.aw||4,th=o.th||14,lw=o.lw||4,hs=o.hs||8,d=o.d||1,po=o.pose||'stand',ph=o.ph||0;
-const mv=po==='walk'||po==='sweep',bob=(mv||po==='curl')?0:((aT>>5)&1),y=fy-bob,sy=y-17-th,l1=mv?Math.round(Math.sin(ph)*3):0;
-R(sk,cx-lw-1+l1,y-11,lw,11);R(sk,cx+1-l1,y-11,lw,11);R('#e8edf2',cx-lw-1+l1-(d<0?1:0),y-2,lw+1,2);R('#e8edf2',cx+1-l1-(d<0?1:0),y-2,lw+1,2);
-R(pa,cx-tw/2,y-17,tw,7);R(shi,cx-tw/2,sy,tw,th);
-const a1=cx-tw/2-aw,a2=cx+tw/2,al=th-2;
-if(po==='curl'){const ap=(1+Math.sin(ph))/2;for(const ax of[a1,a2]){R(sk,ax,sy,aw,7);const yf=sy+7-ap*8,hy2=yf+8*(1-ap);R(sk,ax,yf,aw,8);R('#222',ax-2,hy2-1,aw+4,2);R('#9aa5b1',ax-3,hy2-3,2,6);R('#9aa5b1',ax+aw+1,hy2-3,2,6)}}
-else if(po==='watch'){R(sk,a1,sy,aw,8);R(sk,a2,sy,aw,8);R(sk,cx-tw/2-1,sy+7,tw+2,4)}
-else if(po==='phone'){R(sk,a1,sy,aw,al);R(sk,a2,sy,aw,6);R(sk,a2,sy-4,aw,10);R('#222',a2-2,sy-9,4,6);R('#4db8ff',a2-1,sy-8,2,4)}
-else if(po==='drink'){R(sk,a1,sy,aw,al);R(sk,a2,sy,aw,6);R(sk,a2-3,sy-5,aw,9);R('#4db8ff',a2-3,sy-11,4,8);R('#fff',a2-3,sy-12,4,2)}
-else if(po==='stretch'){R(sk,a1,sy-16,aw,20);R(sk,a2,sy-16,aw,20)}
-else if(po==='talk'){const g=(aT>>4)&1;R(sk,a1,sy,aw,al-3);R('#8a5a2b',a1-5,sy+6,9,12);R('#e8edf2',a1-4,sy+7,7,10);R('#999',a1-3,sy+9,5,1);R('#999',a1-3,sy+12,5,1);R('#999',a1-3,sy+15,5,1);R(sk,a2,sy,aw,6);R(sk,a2+1,sy-6-g*3,aw,8)}
-else if(po==='flex'){const p=(aT>>4)&1?2:0;R(sk,a1-5,sy+1,aw+5,aw);R(sk,a1-5,sy-7-p,aw,8+aw+p);R(sk,a2,sy+1,aw+5,aw);R(sk,a2+5,sy-7-p,aw,8+aw+p)}
-else if(po==='sweep'){const hx=cx+d*(tw/2+aw),hy2=sy+9,bx=cx+d*(15+Math.round(Math.sin(ph)*4));R(sk,a1,sy,aw,9);R(sk,a2,sy,aw,9);ln(hx,hy2,bx,y-2,'#8a5a2b',2);R('#d4a72c',bx-4,y-4,9,4);R('#a67c1a',bx-4,y-1,9,1);R(sk,hx-1,hy2-1,4,3)}
-else if(po==='fist'){R(sk,a1,sy,aw,10);R('#f6ecd0',a1-6,sy+6,9,12);R('#d33',a1-6,sy+6,9,3);R(sk,a2,sy-12,aw,16);R('#c98e63',a2-1,sy-15,aw+2,4)}
-else{const s=po==='walk'?Math.round(Math.sin(ph)*2):0;R(sk,a1,sy+s,aw,al);R(sk,a2,sy-s,aw,al)}
-const hy=sy-hs-(o.lookUp?1:0);R(sk,cx-hs/2,hy,hs,hs);
-if(o.cap){R(o.cap,cx-hs/2-1,hy-2,hs+2,4);R(o.cap,cx+(d>0?hs/2-1:-hs/2-3),hy+1,4,2)}else if(!o.bald)R(ha,cx-hs/2,hy-1,hs,3);
-if(o.beard)R(ha,cx-hs/2,hy+hs-3,hs,3);
-const ey=hy+3-(o.lookUp?1:0),eh=o.lookUp?2:1;R('#000',cx-2+d,ey,1,eh);R('#000',cx+1+d,ey,1,eh);
-glasses(cx,hy,d,o.gl);if(o.lookUp){R('#fff',cx-2+d,ey,1,1);R('#fff',cx+1+d,ey,1,1);R('#2b1b10',cx-3+d,ey-2,3,1);R('#2b1b10',cx+d,ey-2,3,1)}
-R('#6b2a2a',cx-1+d,hy+hs-2,3,((po==='talk'||o.lookUp)&&(po==='fist'||(aT>>3)&1))?2:1)}
-function lie(cx,fy,o){R(o.skin,cx-18,fy-9,9,9);R(o.hair,cx-19,fy-10,5,10);
-if(o.dizzy){R('#000',cx-14,fy-7,1,1);R('#000',cx-12,fy-5,1,1);R('#000',cx-12,fy-7,1,1);R('#000',cx-14,fy-5,1,1)}else R('#000',cx-14,fy-6,2,1);
-R(o.shirt,cx-9,fy-9,14,9);R(o.pants,cx+5,fy-9,7,9);R(o.skin,cx+12,fy-8,11,4);R(o.skin,cx+12,fy-4,11,4);R('#e8edf2',cx+22,fy-8,3,8);R(o.skin,cx-6,fy-13,3,5);
-if(o.dizzy)for(let i=0;i<3;i++){const a=aT*.12+i*2.1;R('#ffd84d',cx-13+Math.cos(a)*9,fy-17+Math.sin(a)*3,2,2)}}
-function brauS(cx,fy,o){const sk='#e0a67a',p=o.p||0,pu=o.pull;
-R(sk,cx-6,fy-14,4,14);R(sk,cx+2,fy-14,4,14);R('#111',cx-10,fy-20,20,7);R('#d33',cx-17,fy-38,34,19);R('#fff',cx-6,fy-32,12,3);
-if(pu!==undefined){R(sk,cx-28,fy-38-pu,11,18+pu);R(sk,cx+17,fy-38-pu,11,18+pu);ln(cx-22,fy-38-pu,cx-22,fy-62,'#ddd');ln(cx+22,fy-38-pu,cx+22,fy-62,'#ddd')}
-else{R(sk,cx+17,fy-38,11,18);if(p>0){const e=Math.round(34*p);R(sk,cx-17-e,fy-36,e+3,10);R('#c98e63',cx-21-e,fy-37,6,12)}else R(sk,cx-28,fy-38,11,18);R('#8a5a2b',cx+22,fy-48,5,10)}
-R(sk,cx-5,fy-49,10,10);R('#111',cx-5,fy-46,10,3);R('#ff8a1f',cx-5,fy-50,10,2);R('#6b2a2a',cx-2,fy-41,5,1)}
-// --- globos de diálogo ---
-function wrap(t,mw){const w=t.split(' '),L=[];let c='';for(const s of w){const n=c?c+' '+s:s;if(x.measureText(n).width>mw&&c){L.push(c);c=s}else c=n}L.push(c);return L}
-function bubble(t,cx,by,mw=112){x.font='bold 8px monospace';const L=wrap(t,mw),w=Math.ceil(Math.max(...L.map(s=>x.measureText(s).width)))+10,h=L.length*10+5,bx=Math.max(3,Math.min(317-w,(cx-w/2)|0)),ty=by-5-h,tx=Math.max(bx+4,Math.min(bx+w-12,(cx-3)|0));
-R('#0a0a0a',bx-1,ty-1,w+2,h+2);R('#fff',bx,ty,w,h);
-for(let i=0;i<4;i++)R('#0a0a0a',tx+i,ty+h+i,7-2*i,1);for(let i=0;i<3;i++)R('#fff',tx+i+1,ty+h+i,5-2*i,1);
-x.fillStyle='#111';x.textAlign='left';L.forEach((s,i)=>x.fillText(s,bx+5,ty+9+i*10))}
-// --- elenco aleatorio de cada día ---
-function spawnCast(ff){cast=[];const used=[],near=s=>used.every(u=>Math.abs(u-s)>=26),slot=arr=>{const c=arr.filter(s=>near(s[0])),s=pk(c.length?c:arr);used.push(s[0]);return s},
-add=o=>{const c=Object.assign({x:160,y:140,d:1,pose:'stand',ph:Math.random()*6,wait:0},o);cast.push(c);return c};
-let f=ff!==undefined?ff:(Math.random()<.2?0:(()=>{let n=rnd(6)+1;if(n===lastFeat)n=n%6+1;return n})());if(f)lastFeat=f;
-if(f===1){const s=slot([[66,1],[250,-1]]);add({...look(),k:'rut',x:s[0],d:s[1],pose:'talk',say:'Esta es mi rutina de pecho para ponerte como tu marido cbum o como yo',shirt:'#ff8a1f',tw:18,aw:5})}
-if(f===2){const l=Math.random()<.5,d=l?1:-1,lx=l?44:284,fx=l?72:256;used.push(lx,fx);add({...look(),k:'lift',x:lx,d,pose:'curl',say:'Yo no voy a envejecer, yo no voy a envejecer',tw:16,aw:5});add({...look(),k:'pal',x:fx,d:-d,pose:'watch',hair:'#cfd5dc'})}
-if(f===3){const d=Math.random()<.5?1:-1;add({...look(),k:'sw',walk:1,pose:'sweep',y:130,d,spd:.42,x:d>0?-24:344,wait:rnd(90),shirt:'#2dd4bf',pants:'#444b57',cap:'#2dd4bf'})}
-if(f===4){const s=slot([[40,1],[290,-1]]);add({...look(),k:'wat',x:s[0],d:s[1],pose:'watch'})}
-if(f===5){const s=slot([[70,1],[250,-1]]);add({...look(),k:'big',x:s[0],d:s[1],pose:'flex',tw:26,aw:8,th:18,lw:7,hs:10,shirt:'#222',cap:0,say:'ay tu marido belcast'})}
-if(f===6){used.push(212);add({...look(),k:'unit',x:212,d:-1,pose:'watch',tw:26,aw:8,th:18,lw:7,hs:10,shirt:'#b36bff',hair:'#d9b24c',beard:true,cap:0,mw:132,say:'¡Dame 100 repeticiones más! ¡Quiero la unidad absoluta!'})}
-for(let i=0,n=1+rnd(3);i<n;i++){if(Math.random()<.55){const d=Math.random()<.5?1:-1;add({...look(),k:'ex',walk:1,pose:'walk',y:pk([122,127,132,136]),d,spd:.3+Math.random()*.45,x:d>0?-24:344,wait:rnd(400)})}
-else{const fr=[[36,1],[64,1],[250,-1],[278,-1],[304,-1]].filter(s=>near(s[0]));if(fr.length){const s=pk(fr);used.push(s[0]);add({...look(),k:'ex2',x:s[0],d:s[1],pose:pk(['stand','phone','stretch','curl','drink','stand'])})}}}}
-function castUpdate(){for(const c of cast){if(!c.walk){c.ph+=.11*fdt;continue}if(c.wait>0){c.wait-=fdt;continue}c.x+=c.d*c.spd*fdt;c.ph=c.x*.3;
-if((c.d>0&&c.x>346)||(c.d<0&&c.x<-26)){c.wait=200+rnd(500);if(c.k==='ex'){Object.assign(c,look());c.spd=.3+Math.random()*.45;c.y=pk([122,127,132,136])}c.d=Math.random()<.5?1:-1;c.x=c.d>0?-24:344}}}
-function castDraw(){const v=cast.filter(c=>!(c.walk&&c.wait>0)).sort((a,b)=>a.y-b.y);v.forEach(c=>npc(c.x|0,c.y,c));v.forEach(c=>{if(c.say)bubble(c.say,c.x|0,c.y-17-(c.th||14)-(c.hs||8)-3,c.mw||112)})}
-// --- comidas: 12 al día (4x3) con al menos 2 combinaciones válidas ---
-const VCm=new Map();
-function validCombos(){if(VCm.has(goal))return VCm.get(goal);const g=goal,n=F.length,out=[];
-const ok=l=>{let k=0,p=0,c=0,j=0;for(const i of l){const a=F[i];k+=a[2];p+=a[3];c+=a[4];if(a[6])j++}return !j&&Math.abs(k/g.k-1)<=.15&&p>=g.p*.85&&c>=g.c*.6};
-const rec=(s,l)=>{if(l.length&&ok(l))out.push(l.slice());if(l.length===4)return;for(let i=s;i<n;i++){l.push(i);rec(i+1,l);l.pop()}};rec(0,[]);VCm.set(g,out);return out}
-function pickFoods(){const V=validCombos(),s=new Set();if(V.length){const a=pk(V);a.forEach(i=>s.add(i));let b=null;for(let n=0;n<80;n++){const c=pk(V);if(c.join()===a.join())continue;b=c;if(c.filter(i=>!a.includes(i)).length>=2)break}if(b)b.forEach(i=>s.add(i))}
-const rest=shuffle(F.map((_,i)=>i).filter(i=>!s.has(i)));while(s.size<12&&rest.length)s.add(rest.pop());return shuffle([...s]).slice(0,12)}
-// --- historia de inicio ---
-const KID={skin:'#e0a67a',hair:'#2b1b10',shirt:'#9aa5b1',pants:'#2a4d8f',tw:12,aw:3,th:14,lw:4};
-const E01=(a,b,v)=>Math.max(0,Math.min(1,(v-a)/(b-a)));
-function once(k,fn){if(!ST.o[k]){ST.o[k]=1;fn()}}
-function story(){clearInterval(mus);mode='story';act=null;tm=null;B=null;cast=[];reset();setCv(180);Object.assign(KID,kidFromPL());ST={t0:performance.now(),o:{},shk:0,stp:-1};ups();
-P(`<div class="row" style="justify-content:center"><button class="or" id="sk">⏭ Omitir historia</button></div><p style="text-align:center;margin:6px 0 0"><small>También puedes pulsar Esc</small></p>`);$('sk').onclick=endStory}
-function endStory(){if(!ST)return;ST=null;SFX.click();x.textAlign='left';goals()}
-function cap(t){x.globalAlpha=.75;R('#000',0,158,320,18);x.globalAlpha=1;x.font='bold 9px monospace';x.fillStyle='#fff';x.textAlign='center';x.fillText(t,160,170);x.textAlign='left'}
-function flyerBig(k,rot){x.save();x.translate(160,92);x.rotate(rot);x.scale(k,k);
-R('#0a0a0a',-62,-82,124,164);R('#f6ecd0',-60,-80,120,160);R('#d33',-60,-80,120,24);R('#a82222',-60,-56,120,3);
-x.textAlign='center';x.fillStyle='#fff';x.font='bold 15px monospace';x.fillText('COMPETENCIA',0,-62);
-x.font='900 34px Impact,"Arial Black",sans-serif';x.lineWidth=5;x.lineJoin='round';x.strokeStyle='#0a0a0a';x.strokeText('FITNESS',0,-28);x.fillStyle='#ff8a1f';x.fillText('FITNESS',0,-28);x.lineWidth=1;
-dumbbell(0,-6,1,'#d33');x.fillStyle='#222';x.font='bold 11px monospace';x.fillText('FECHA',0,22);x.fillStyle='#d33';x.font='900 24px Impact,"Arial Black",sans-serif';x.fillText('15/02/2026',0,48);
-R('#f2c94c',-8,56,16,10);R('#f2c94c',-3,66,6,5);R('#8a5a2b',-8,71,16,4);R('#f2c94c',-12,57,4,6);R('#f2c94c',8,57,4,6);x.textAlign='left';x.restore()}
-function inspire(t){raysBg();x.save();x.translate(160,178);x.scale(3,3);npc(0,0,{...KID,d:1,pose:'fist',lookUp:E01(15.8,16.7,t)>.5?1:0});x.restore();
-const k=((t*6)|0)%3;star(70,60,3+k%2,'#ffd84d');star(250,80,2+((k+1)%2),'#fff');star(95,120,2,'#39ff6a');star(228,40,3,'#ffd84d')}
-function drawStory(){const t=(performance.now()-ST.t0)/1000;if(t>=24){endStory();return}
-x.save();if(ST.shk>0){ST.shk--;x.translate(rnd(5)-2,rnd(5)-2)}
-if(t>=15.8&&t<19.6)inspire(t);
-else{bgd();decor();
-const pp=t<6.7?0:t<7.1?(t-6.7)/.4:t<7.8?1:t<8.3?1-(t-7.8)/.5:0,bxp=t<6.5?238:t<7.1?238-16*(t-6.5)/.6:t<8.6?222:t<9.4?222+16*(t-8.6)/.8:238,pull=(t<5.8||t>9.6)?8+8*Math.sin(t*4):undefined;
-brauS(bxp|0,140,{p:pp,pull});
-if(t<7.1){const bx=t<.4?-14:Math.min(178,-14+192*(t-.4)/3.2),wk=t>.4&&bx<178;npc(bx|0,140,{...KID,d:1,pose:wk?'walk':'stand',ph:bx*.32});if(wk){const s=(t*3.4)|0;if(s!==ST.stp){ST.stp=s;bp(150,.04,'square',.03)}}}
-else if(t<8.1){const u=t-7.1;lie((178-66*u)|0,(140-Math.sin(u*Math.PI)*24)|0,KID)}
-else lie(112,140,{...KID,dizzy:1});
-if(t>=8.3){const u=E01(8.3,9.5,t);if(u<1){const fx=96+22*Math.sin(u*9)*(1-u),fy=50+u*84;R('#0a0a0a',fx-1,fy-1,11,8);R('#f6ecd0',fx,fy,9,6);R('#d33',fx,fy,9,2)}else{R('#f6ecd0',88,137,14,4);R('#d33',88,137,14,1);x.globalAlpha=.5+.5*Math.sin(t*8);star(84,133,2,'#ffd84d');star(106,134,2,'#ffd84d');x.globalAlpha=1}}
-if(t>=3.9&&t<6.7)bubble('Disculpa, ¿me explicas cómo se usa esta máquina?',178,140-17-14-8-3);
-if(t>=7.1&&t<10.2)bubble('¡Largo, perdedor!',bxp|0,140-54);
-if(t>=.9&&t<3.8)cap('01/02/2026 · Tu primer día en el gimnasio');
-if(t>=7.1)once('push',()=>{SFX.hurt();ST.shk=16});if(t>=8.1)once('land',()=>bp(90,.12,'triangle',.1));if(t>=11)once('fl',()=>SFX.alert());
-if(t>=10.7&&t<15.8){x.fillStyle='rgba(0,0,0,'+.82*E01(10.7,11.3,t)+')';x.fillRect(0,0,320,180);if(t>=11){const k=E01(11,11.7,t),e=1+2.70158*Math.pow(k-1,3)+1.70158*Math.pow(k-1,2);flyerBig(Math.max(.05,e),(1-k)*-.5+Math.sin(t*2)*.015)}}}
-if(t>=15.8)once('up',()=>SFX.up());
-x.restore();
-let a=0;if(t<.8)a=1-t/.8;else if(t>=19.4)a=E01(19.4,20.4,t);if(a>0){x.fillStyle='rgba(0,0,0,'+a+')';x.fillRect(0,0,320,180)}
-if(t>=15.5&&t<16.2){const w=1-Math.abs(t-15.85)/.35;if(w>0){x.fillStyle='rgba(255,255,255,'+w*.9+')';x.fillRect(0,0,320,180)}}}
-document.addEventListener('keydown',e=>{if(e.code==='Escape'&&ST)endStory()});
-// ---------- PERSONALIZACIÓN ----------
+const store={
+ get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},
+ set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
+ del(k){try{localStorage.removeItem(k)}catch(e){}}
+};
+const CALM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+/* Temporizadores cancelables: evitan que algo pendiente cambie de pantalla tras salir */
+let timers=[],paused=false,lastFocus=null;
+function later(fn,ms){const id=setTimeout(()=>{timers=timers.filter(t=>t!==id);if(paused)later(fn,200);else fn()},ms);timers.push(id)}
+function cancelTimers(){timers.forEach(clearTimeout);timers=[]}
+
+/* =====================================================================
+   2. DATOS DEL JUEGO
+   ===================================================================== */
+const GOALS={
+ mus:{n:'Ganancia muscular',i:'💪',k:2300,p:160,c:290,f:70,d:'Más carbohidratos y calorías para construir fuerza.'},
+ rec:{n:'Recomposición corporal',i:'⚖️',k:1700,p:150,c:170,f:55,d:'Proteína alta y calorías moderadas: más músculo, menos grasa.'},
+ res:{n:'Resistencia atlética',i:'🏃',k:2100,p:110,c:330,f:60,d:'Muchos carbohidratos para aguantar rondas largas.'}
+};
+/* [emoji, nombre, kcal, proteína, carbos, grasa, ultraprocesado, descripción] */
+const FOODS=[
+ ['🍗','Pechuga de pollo 300 g',495,93,0,11,0,'Proteína magra completa para reparar músculo.'],
+ ['🍚','Arroz integral 2 tazas',430,10,90,4,0,'Carbo complejo con fibra: energía sostenida.'],
+ ['🍳','Huevos revueltos (5)',460,32,3,34,0,'Proteína de alta calidad; aporta bastante grasa.'],
+ ['🥣','Avena con plátano grande',520,15,95,9,0,'Carbos y fibra ideales antes de entrenar.'],
+ ['🥑','Aguacate (2)',480,6,26,44,0,'Grasas monoinsaturadas y potasio. Muy denso.'],
+ ['🐟','Salmón 250 g',520,56,0,30,0,'Proteína más omega-3.'],
+ ['🍕','Pizza grasosa (4 reb.)',1000,38,115,45,1,'Mucha grasa saturada y sodio.'],
+ ['🥤','Refresco 1 L',420,0,106,0,1,'Azúcar añadida sin fibra ni nutrientes.'],
+ ['⚡','Bebida energética (2)',440,0,110,0,1,'Azúcar y cafeína: afecta el sueño.'],
+ ['🥗','Ensalada mixta con aceite',180,4,18,11,0,'Fibra y micronutrientes; pocas calorías.'],
+ ['🫘','Frijoles con tortillas',560,22,100,7,0,'Combo mexicano: proteína vegetal, fibra y carbos.'],
+ ['🥛','Yogur griego con fruta',380,24,50,9,0,'Proteína láctea y calcio, buen post-entreno.'],
+ ['🥔','Papa al horno (3)',480,12,108,0,0,'Carbo saciante con potasio.'],
+ ['🥫','Atún (3 latas) con pan',520,60,40,9,0,'Mucha proteína práctica y económica.'],
+ ['🍔','Hamburguesa doble + papas',1150,50,100,62,1,'Exceso de grasa y sodio en una sola comida.'],
+ ['🥩','Carne molida magra 250 g',440,50,0,25,0,'Proteína, hierro y vitamina B12.'],
+ ['🧊','Tofu firme 400 g',280,32,8,17,0,'Proteína vegetal completa.'],
+ ['🍙','Arroz blanco cocido 2 tazas',520,11,113,1,0,'Carbo de digestión rápida para recargar glucógeno.'],
+ ['🍌','Plátano (3)',267,3,68,1,0,'Fruta práctica con potasio.'],
+ ['🍝','Pasta cocida 400 g',632,23,124,4,0,'Gran recarga de glucógeno.'],
+ ['🌮','Tortillas de maíz (6)',327,9,67,4,0,'Carbo nixtamalizado con calcio.'],
+ ['🫒','Aceite de oliva 2 cdas',265,0,0,30,0,'Grasa saludable: pequeña porción, muchas kcal.'],
+ ['🌰','Almendras 80 g',463,17,17,40,0,'Vitamina E, magnesio y grasas buenas.'],
+ ['🥜','Crema de cacahuate 4 cdas',376,16,13,32,0,'Densa en energía; algo de proteína.'],
+ ['🧠','Nueces 80 g',523,12,11,52,0,'Omega-3 vegetal; muy calóricas.'],
+ ['🍲','Lentejas guisadas 2 tazas',460,36,80,2,0,'Proteína vegetal, hierro y mucha fibra.'],
+ ['🧀','Queso panela con nopales',320,28,12,18,0,'Proteína y calcio, con fibra del nopal.'],
+ ['🍠','Camote cocido 400 g',345,6,80,0,0,'Carbo con fibra y betacarotenos.'],
+ ['🥪','Sándwiches integrales de pavo (2)',520,36,60,14,0,'Comida equilibrada y portátil.'],
+ ['🥦','Verduras al vapor y quinoa',360,13,60,8,0,'Fibra, hierro y vitaminas.'],
+ ['🥛','Leche (500 ml) con cacao natural',320,18,30,14,0,'Líquido, proteína y carbos para recuperarte.'],
+ ['🍩','Donas glaseadas (3)',780,9,90,42,1,'Azúcar y grasa con casi cero saciedad.'],
+ ['🍜','Sopa instantánea (2)',760,16,102,32,1,'Altísima en sodio y baja en proteína.'],
+ ['🍟','Nuggets fritos + catsup',690,28,58,38,1,'Rebozado y fritura: poca proteína por caloría.']
+];
+/* Se muestran de 0 a 100 */
+const STATS=[['STR','Fuerza','#A855F7'],['STA','Resistencia','#22D3EE'],['REC','Recuperación','#818CF8'],['ENG','Energía','#C084FC'],['HP','Salud metab.','#22C55E']];
+const EVENT_DAYS=[2,3,5,6,8,10,11,13];
+/* e: emoji+título, q: dilema, o: [texto, efectos, ¿acierto?, explicación] */
+const EVENTS=[
+ {t:'📱 El polvo mágico del influencer',q:'Un influencer jura que su polvo te marca el abdomen en 3 días. Cuesta $900.',o:[
+  ['Comprarlo',{HP:-6,ENG:-5},0,'No existe la pérdida de grasa localizada ni un abdomen en 3 días. Muchos de esos polvos son diuréticos, laxantes o estimulantes: pierdes agua, no grasa.'],
+  ['Ignorarlo y seguir tu plan',{HP:5,REC:3},1,'La grasa abdominal baja con déficit calórico sostenido, proteína suficiente, fuerza y sueño. Ningún polvo lo reemplaza.'],
+  ['Consultar a un nutriólogo certificado',{HP:4,STR:2,REC:2},1,'Un profesional ajusta el plan a tu cuerpo y evita que gastes en promesas sin evidencia.']]},
+ {t:'📚 Examen mañana',q:'Tienes examen y quieres tomar 3 bebidas energéticas sin dormir.',o:[
+  ['Tomarlas y estudiar toda la noche',{REC:-8,HP:-5,ENG:-8},0,'La cafeína no sustituye al sueño: sin dormir se consolida peor la memoria y empeora la recuperación.'],
+  ['Dormir 7-8 h y repasar temprano',{REC:7,HP:3,ENG:5},1,'Dormir consolida lo aprendido y favorece la reparación muscular.'],
+  ['Una bebida y dormir 4 h',{REC:-3,ENG:-2},0,'Es un punto medio, pero dormir tan poco sigue afectando recuperación y rendimiento.']]},
+ {t:'🥩 "Solo proteína, cero carbos"',q:'Un amigo presume su dieta sin carbohidratos y te reta a imitarla.',o:[
+  ['Aceptar el reto',{STA:-5,ENG:-10},0,'Con muy pocos carbohidratos bajan tus reservas de glucógeno: suele caer el rendimiento en entrenamientos intensos.'],
+  ['Explicarle que los carbos son combustible',{STA:3,ENG:5,HP:2},1,'Los carbohidratos reponen glucógeno muscular. La proteína repara; no es tu fuente principal de energía.']]},
+ {t:'🎂 Cumpleaños con pizza y refresco',q:'Hay pizza, pastel y refresco ilimitado.',o:[
+  ['Comer sin control',{HP:-5,STA:-4},0,'Un día no arruina tu progreso, pero el atracón de grasa y azúcar genera pesadez y picos de glucosa.'],
+  ['Porción moderada y a bailar',{HP:3,STA:2},1,'Disfrutas sin culpa y mantienes el hábito. La constancia importa más que la perfección.'],
+  ['No comer en todo el día para compensar',{ENG:-8,HP:-3},0,'Saltarte comidas suele acabar en atracones y te deja sin energía para entrenar.']]},
+ {t:'🦵 Agujetas fuertes',q:'Te duelen muchísimo las piernas y quieres entrenarlas igual.',o:[
+  ['Entrenar al límite de todos modos',{REC:-6,STR:-2},0,'Castigar un músculo sin recuperar acumula fatiga y aumenta el riesgo de lesión.'],
+  ['Descanso activo, proteína y sueño',{REC:7,HP:2},1,'Caminar suave, comer proteína y dormir bien ayudan a recuperarte.'],
+  ['Antiinflamatorio todos los días',{HP:-5,REC:-2},0,'Abusar de antiinflamatorios puede dañar estómago y riñón. No los uses a diario sin indicación médica.']]},
+ {t:'🧪 "La creatina destruye riñones"',q:'Un compañero te advierte que ni se te ocurra probar creatina.',o:[
+  ['Creerle y difundirlo',{STR:-1},0,'La creatina monohidratada es de los suplementos más estudiados. En personas sanas y a dosis habituales (3-5 g/día) no se ha demostrado daño renal.'],
+  ['Revisar evidencia y preguntar a un profesional',{STR:4,HP:2},1,'Correcto: es útil para fuerza en muchas personas, pero con enfermedad renal, o si eres menor de edad, primero consulta.'],
+  ['Tomar 25 g diarios "para que pegue"',{HP:-5,ENG:-2},0,'Más no es mejor: dosis altas sin necesidad causan molestias digestivas y gasto inútil.']]},
+ {t:'🥵 Calor de 35 °C',q:'Toca entrenar al mediodía y casi no has tomado agua.',o:[
+  ['Entrenar con sudadera para sudar más',{HP:-7,STA:-3},0,'Sudar más no quema más grasa: pierdes agua y te arriesgas a un golpe de calor.'],
+  ['Hidratarte y bajar la intensidad',{STA:4,HP:3},1,'Beber antes, durante y después y evitar las horas de más calor protege tu rendimiento y tu salud.'],
+  ['Esperar a tener muchísima sed',{ENG:-6,STA:-2},0,'Llegar deshidratado ya reduce tu rendimiento. Empieza hidratado.']]},
+ {t:'📵 Scroll a las 2 a.m.',q:'Llevas una hora viendo videos en la cama y mañana entrenas.',o:[
+  ['"Uno más" hasta que me dé sueño',{REC:-6,ENG:-6},0,'La pantalla retrasa tu hora de dormir. Poco sueño aumenta el apetito y reduce la fuerza.'],
+  ['Dejar el celular fuera y apagar la luz',{REC:6,ENG:4},1,'Un horario regular y un cuarto oscuro mejoran la calidad del sueño.'],
+  ['Tomar pastillas de dormir de un familiar',{HP:-8},0,'Nunca uses medicamentos sin receta ajena: pueden ser peligrosos.']]},
+ {t:'💉 "Un ciclo y listo"',q:'En el vestidor te ofrecen anabólicos "para llegar fuerte a la competencia".',o:[
+  ['Aceptar solo esta vez',{HP:-14,REC:-4,STR:3},0,'Sin control médico alteran hormonas, corazón, hígado y estado de ánimo; además el producto clandestino puede estar contaminado.'],
+  ['Decir que no y seguir tu proceso',{HP:6,STR:2},1,'El progreso con entrenamiento, comida y sueño es más lento, pero es tuyo y es seguro.']]},
+ {t:'⏱️ La "ventana anabólica"',q:'No hay tu batido y alguien dice que si no tomas proteína en 30 min pierdes el entreno.',o:[
+  ['Entrar en pánico y comprar el más caro',{ENG:-3},0,'La ventana es mucho más amplia de lo que dice el mito.'],
+  ['Comer bien en las siguientes horas',{REC:4,STR:2},1,'Importa más el total diario de proteína, repartido en varias comidas, que el minuto exacto.'],
+  ['No comer nada hasta mañana',{REC:-5,ENG:-6},0,'Tampoco: tu cuerpo necesita proteína y carbohidratos para recuperarse.']]},
+ {t:'🧃 Detox de jugos',q:'Tu prima propone 3 días de puro jugo verde para "limpiar toxinas".',o:[
+  ['Hacerlo con ella',{ENG:-10,STR:-3,HP:-2},0,'Hígado y riñones ya hacen esa limpieza. Con puro jugo te faltan proteína y energía.'],
+  ['Comer verduras enteras en tus comidas',{HP:5,REC:2},1,'La verdura entera conserva fibra y sacia más. Sin necesidad de ayunos extremos.']]},
+ {t:'🔥 Fajas "quema grasa"',q:'Venden una faja térmica que promete derretir la cintura mientras entrenas.',o:[
+  ['Usarla apretada',{HP:-4,STA:-2},0,'Solo te hace sudar esa zona: el peso vuelve al beber agua y puede dificultar la respiración.'],
+  ['Ahorrar y enfocarte en constancia',{HP:3,STA:2},1,'La grasa se usa de todo el cuerpo según tu balance energético total.']]},
+ {t:'🤒 Amaneciste con fiebre',q:'Hoy tocaba tu entrenamiento más pesado.',o:[
+  ['"Sudar la fiebre" entrenando',{HP:-9,REC:-5},0,'Entrenar con fiebre es riesgoso para el corazón y prolonga la enfermedad.'],
+  ['Descansar, hidratarte y consultar si empeora',{HP:5,REC:5},1,'Un descanso a tiempo cuesta menos que una recaída.']]},
+ {t:'🍻 Fiesta tras entrenar',q:'Después de una gran sesión te invitan a "celebrar" toda la noche.',o:[
+  ['Desvelarte y beber alcohol',{REC:-8,HP:-5,ENG:-6},0,'El alcohol y el desvelo frenan la recuperación y la síntesis de músculo. Y en menores, no hay cantidad segura.'],
+  ['Ir un rato, sin alcohol, y dormir',{REC:3,HP:2},1,'Puedes convivir sin sacrificar tu recuperación.']]},
+ {t:'🌅 Entrenar en ayunas',q:'Leíste que entrenar sin desayunar "quema el doble de grasa".',o:[
+  ['Hacer la sesión más pesada sin comer nada',{ENG:-8,STR:-2},0,'Con el mismo balance calórico, el ayuno no ofrece ventaja clara para perder grasa y puede bajar tu rendimiento.'],
+  ['Comer algo ligero con carbos antes',{ENG:6,STA:3},1,'Un plátano o avena te da combustible para rendir mejor.']]}
+];
+const SKILLS=[
+ ['🏋️ Repetición Pesada','Daño según tu Fuerza',10],
+ ['🏃 Sprint Metabólico','Resistencia + Energía; le quita aire a Braulio',15],
+ ['🧘 Respiración y Técnica','Recupera HP según Salud Metabólica',6],
+ ['⚡ Golpe de Glucógeno','Definitivo: exige 8 días con buenos carbos',30]
+];
+const BRO_QUIPS=['¡Los carbos de noche engordan!','¡Cardio mata las ganancias!','¡Sin dolor no hay músculo!','¡Dormir es para débiles!','¡500 g de proteína o nada!','¡Hoy no toca pierna!'];
+const SOURCES=[
+ ['ISSN: proteína y ejercicio (2017)','https://jissn.biomedcentral.com/articles/10.1186/s12970-017-0177-8'],
+ ['ISSN: creatina (2017)','https://jissn.biomedcentral.com/articles/10.1186/s12970-017-0173-z'],
+ ['ACSM/AND: nutrición y rendimiento (2016)','https://pubmed.ncbi.nlm.nih.gov/26917108/']
+];
+
+/* =====================================================================
+   3. ESTADO Y GUARDADO
+   ===================================================================== */
+const KEY='macroclash_save_v1',LOOK='macroclash_look_v1',MKEY='macroclash_mute_v1';
 const NR=8;
-let PL={skin:'#e0a67a',shirt:'#9aa5b1',pants:'#2a4d8f',hair:'#2b1b10',gl:0,beard:0,cap:0};
-try{const q=JSON.parse(localStorage.getItem('macroclash_look_v1'));if(q&&q.skin)PL=Object.assign(PL,q)}catch(e){}
-function saveL(){try{localStorage.setItem('macroclash_look_v1',JSON.stringify(PL))}catch(e){}}
-const SKT=['#f6d2b0','#e0a67a','#c68a5c','#8d5a3a','#5b3a29'],SHT=['#e84a5f','#4db8ff','#ffd84d','#39ff6a','#b36bff','#ff8a1f','#e8edf2','#9aa5b1'],PAT=['#2a4d8f','#222222','#444b57','#6b2a2a','#1f5a3a','#e8edf2','#ff8a1f','#7a3fb0'],HAT=['#2b1b10','#111111','#8a5a2b','#d9b24c','#c0392b','#cfd5dc'];
-function glasses(cx,hy,d,t){if(!t)return;const a=cx-2+d,b=cx+1+d;
-if(t===1){for(const e of[a,b]){R('#2b2f36',e-1,hy+2,3,1);R('#2b2f36',e-1,hy+4,3,1);R('#2b2f36',e-1,hy+3,1,1);R('#2b2f36',e+1,hy+3,1,1)}}
-else{R('#111',a-1,hy+2,3,3);R('#111',b-1,hy+2,3,3);R('#4db8ff',a-1,hy+2,1,1);R('#4db8ff',b-1,hy+2,1,1)}}
-function kidFromPL(){return{skin:PL.skin,hair:PL.hair,shirt:PL.shirt,pants:PL.pants,tw:13,aw:3,th:14,lw:4,cap:PL.cap?PL.shirt:0,beard:PL.beard,gl:PL.gl}}
-function drawCustom(){raysBg();x.save();x.translate(160,172);x.scale(3,3);npc(0,0,{...kidFromPL(),d:1,pose:'stand'});x.restore();star(60,50,3,'#ffd84d');star(260,70,2,'#fff');star(240,130,2,'#39ff6a')}
-function custom(){mode='custom';act=null;tm=null;B=null;cast=[];reset();setCv(180);ups();
-const sw=(arr,key)=>arr.map(c=>`<button class="sw${PL[key]===c?' on':''}" data-k="${key}" data-v="${c}" style="background:${c}" aria-label="${key} ${c}"></button>`).join('');
-const opt=(l,key,v)=>`<button class="opt${PL[key]===v?' on':''}" data-k="${key}" data-v="${v}">${l}</button>`;
-P(`<h2>Personaliza a tu atleta</h2>
-<div class="cr"><b>Color de piel</b>${sw(SKT,'skin')}</div>
-<div class="cr"><b>Camisa</b>${sw(SHT,'shirt')}</div>
-<div class="cr"><b>Short / pantalón</b>${sw(PAT,'pants')}</div>
-<div class="cr"><b>Cabello</b>${sw(HAT,'hair')}</div>
-<div class="cr"><b>Lentes</b>${opt('Ninguno','gl',0)}${opt('Transparentes','gl',1)}${opt('De sol','gl',2)}</div>
-<div class="cr"><b>Extras</b>${opt('Barba','beard',1)}${opt('Gorra (color de la camisa)','cap',1)}</div>
-<div class="row"><button class="pri" id="cgo">▶ Comenzar</button><button id="cbk">Atrás</button></div>`);
-document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(k==='beard'||k==='cap')PL[k]=PL[k]?0:1;else PL[k]=k==='gl'?+b.dataset.v:b.dataset.v;SFX.click();custom()});
-$('cgo').onclick=()=>{saveL();SFX.click();story()};$('cbk').onclick=()=>{SFX.click();menu()}}
-function loop(){aT++;const nw=performance.now();fdt=Math.min(3,(nw-lastT)/16.667);lastT=nw;x.clearRect(0,0,320,300);if(mode==='menu')drawMenu();else if(mode==='story'){if(ST)drawStory()}else if(mode==='custom')drawCustom();else{bgd();if(mode!=='battle')decor();if(mode==='idle'){castUpdate();castDraw()}if(mode!=='title')drawScene();else{person(160,138,{});x.font='bold 11px monospace';x.fillStyle='#ff8a1f';x.fillText('Camino al Olimpo del Gym',88,70)}}
-if(tm){if(!tm.lock){tm.pos+=tm.speed*tm.dir;if(tm.pos<=0){tm.pos=0;tm.dir=1}if(tm.pos>=234){tm.pos=234;tm.dir=-1}}
-R('#000',36,152,248,16);R('#222',40,154,240,12);R('#39ff6a',40+tm.z,154,tm.w,12);R('#fff',40+tm.pos,151,6,18);x.font='9px monospace';x.fillStyle='#fff';x.fillText('Rep '+Math.min(NR,tm.r+1)+'/'+NR+(tm.bad?'  Fallos: '+tm.bad:''),40,147)}
-ft=ft.filter(f=>f.l>0);ft.forEach(f=>{f.y-=.5;f.l--;x.font='bold 11px monospace';x.fillStyle=f.c;x.fillText(f.t,f.x,f.y)});requestAnimationFrame(loop)}
-cv.onclick=press;document.addEventListener('keydown',e=>{if(e.code==='Space'&&tm){e.preventDefault();press()}});
-reset();menu();loop();
-</script></body></html>
+let S,T,hist,evq,goal,gkey,day=1,sel=[],D=null,mode='menu',act=null,tm=null,B=null,ST=null,cast=[],lastFeat=0;
+let PL={skin:'#e0a67a',shirt:'#38BDF8',pants:'#2a4d8f',hair:'#2b1b10',gl:0,beard:0,cap:0};
+{const q=store.get(LOOK);if(q&&q.skin)Object.assign(PL,q)}
+function reset(){
+ S={STR:10,STA:10,REC:10,ENG:50,HP:50};
+ T={c:0,p:0,j:0,ok:0,ev:0,evn:0,rest:0,perf:0,good:0,fail:0};
+ hist=[];evq=shuffle(EVENTS.map((_,i)=>i)).slice(0,EVENT_DAYS.length);
+ day=1;sel=[];D=null;
+}
+function save(){store.set(KEY,{g:gkey,day,S,T,hist,evq,pl:PL})}
+function loadSave(){
+ const s=store.get(KEY);
+ return s&&GOALS[s.g]&&s.S&&STATS.every(a=>Number.isFinite(s.S[a[0]]))&&s.T&&s.day>=1&&s.day<=15?s:null;
+}
+
+/* =====================================================================
+   4. AUDIO PROCEDURAL (Web Audio, sin archivos)
+   ===================================================================== */
+const Audio2=(()=>{
+ let ac=null,master,mus,sfx,noiseBuf,timer=null,track=null,step=0,next=0,variation=0;
+ let muted=!!store.get(MKEY);
+ function ctx(){
+  if(!ac){
+   try{
+    ac=new(window.AudioContext||window.webkitAudioContext)();
+    const comp=ac.createDynamicsCompressor();comp.connect(ac.destination);
+    master=ac.createGain();master.gain.value=muted?0:.9;master.connect(comp);
+    mus=ac.createGain();mus.gain.value=.55;mus.connect(master);
+    sfx=ac.createGain();sfx.gain.value=.9;sfx.connect(master);
+    noiseBuf=ac.createBuffer(1,ac.sampleRate*.5,ac.sampleRate);
+    const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+   }catch(e){ac=null}
+  }
+  if(ac&&ac.state==='suspended'&&!document.hidden)ac.resume().catch(()=>{});
+  return ac;
+ }
+ function tone(f,t,dur,type,vol,out,slide,attack=.008){
+  const o=ac.createOscillator(),g=ac.createGain();
+  o.type=type;o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+attack);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(out);o.start(t);o.stop(t+dur+.03);
+ }
+ function noise(t,dur,vol,freq,out,type='highpass'){
+  const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();
+  s.buffer=noiseBuf;f.type=type;f.frequency.value=freq;
+  g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  s.connect(f);f.connect(g);g.connect(out);s.start(t);s.stop(t+dur);
+ }
+ const hz=n=>440*Math.pow(2,(n-69)/12);
+ /* Progresiones (notas MIDI de la raíz y tipo menor/mayor) */
+ const TRACKS={
+  menu:{bpm:84,prog:[[57,1],[53,0],[48,0],[55,0]],drums:0},
+  gym:{bpm:102,prog:[[57,1],[53,0],[48,0],[55,0],[50,1],[57,1],[53,0],[52,0]],drums:1},
+  battle:{bpm:138,prog:[[52,1],[48,0],[50,0],[47,0]],drums:2}
+ };
+ const MOTIFS=[[0,-1,2,-1,4,-1,2,-1],[4,-1,-1,3,2,-1,0,-1],[-1,2,3,-1,5,4,-1,-1],[0,-1,-1,-1,2,-1,4,5],[-1,-1,-1,-1,-1,-1,-1,-1]];
+ function schedule(){
+  const tr=TRACKS[track],s16=60/tr.bpm/4;
+  while(next<ac.currentTime+.18){
+   const bar=Math.floor(step/16),i=step%16,[root,minor]=tr.prog[bar%tr.prog.length];
+   const third=minor?3:4,scale=minor?[0,3,5,7,10,12,15]:[0,2,4,7,9,12,14];
+   if(i===0){
+    if(bar%4===0)variation=rnd(MOTIFS.length);
+    [0,third,7].forEach(n=>tone(hz(root+n),next,s16*15,'triangle',.028,mus,0,.15));
+   }
+   if(track==='battle'?i%2===0:(i===0||i===6||i===10))tone(hz(root-12+(i===10?7:0)),next,s16*(track==='battle'?1.6:3),'triangle',.12,mus);
+   if(i%2===0){
+    const m=MOTIFS[(variation+(bar%2))%MOTIFS.length][i/2];
+    if(m>=0)tone(hz(root+12+scale[m]),next,s16*2.6,'square',.018,mus);
+    else if(tr.drums&&Math.random()<.18)tone(hz(root+24+pick([0,third,7])),next,s16,'sine',.025,mus);
+   }
+   if(tr.drums){
+    if(i===0||i===8||(tr.drums===2&&i%4===0))tone(130,next,.13,'sine',.2,mus,-85,.002);
+    if(i===4||i===12)noise(next,.1,.07,1500,mus,'bandpass');
+    if(i%(tr.drums===2?2:4)===2%(tr.drums===2?2:4))noise(next,.03,.028,7000,mus);
+   }
+   next+=s16;step++;
+  }
+ }
+ function play(name){
+  if(track===name&&timer)return;
+  stop();track=name;
+  if(!ctx())return;
+  step=0;next=ac.currentTime+.08;
+  timer=setInterval(()=>{if(ac.state==='running'){if(next<ac.currentTime)next=ac.currentTime+.05;schedule()}},40);
+ }
+ function stop(){clearInterval(timer);timer=null;track=null}
+ const notes=(arr,type,vol,gap,dur)=>arr.forEach((f,i)=>tone(f,ac.currentTime+i*gap,dur,type,vol,sfx));
+ const FX={
+  click:t=>tone(740,t,.05,'square',.045,sfx,200),
+  select:t=>{tone(520,t,.06,'triangle',.12,sfx,260)},
+  good:t=>{tone(587,t,.09,'square',.07,sfx);tone(880,t+.06,.12,'square',.06,sfx);noise(t,.05,.08,3000,sfx)},
+  perfect:()=>{notes([784,988,1319,1568],'square',.06,.05,.14);noise(ac.currentTime,.09,.12,2500,sfx)},
+  miss:t=>tone(200,t,.24,'sawtooth',.07,sfx,-120),
+  lift:t=>tone(90,t,.18,'triangle',.18,sfx,80),
+  up:()=>notes([523,659,784,1047],'square',.055,.09,.16),
+  alert:()=>notes([440,330,440],'triangle',.12,.13,.14),
+  hit:t=>{noise(t,.14,.3,900,sfx,'lowpass');tone(170,t,.16,'square',.1,sfx,-110,.002)},
+  heavy:t=>{noise(t,.35,.45,700,sfx,'lowpass');tone(110,t,.4,'sawtooth',.14,sfx,-70,.002);tone(880,t,.2,'square',.05,sfx,-600)},
+  hurt:t=>{noise(t,.12,.22,500,sfx,'lowpass');tone(250,t,.22,'sawtooth',.08,sfx,-160)},
+  heal:()=>notes([440,554,659,880],'sine',.12,.07,.22),
+  bell:t=>{[0,.22,.44].forEach(d=>{tone(1250,t+d,.35,'triangle',.09,sfx);tone(1870,t+d,.25,'sine',.05,sfx)})},
+  win:()=>notes([523,659,784,1047,784,1047,1319],'square',.065,.13,.24),
+  lose:()=>notes([392,330,262,196],'triangle',.15,.22,.32),
+  step:t=>noise(t,.04,.07,300,sfx,'lowpass')
+ };
+ function fx(n){if(muted||!ctx())return;try{FX[n](ac.currentTime)}catch(e){}}
+ function setMute(m){muted=m;store.set(MKEY,m);if(ctx())master.gain.setTargetAtTime(m?0:.9,ac.currentTime,.02)}
+ document.addEventListener('visibilitychange',()=>{if(!ac)return;if(document.hidden)ac.suspend().catch(()=>{});else ac.resume().catch(()=>{})});
+ /* Los navegadores solo permiten audio tras un gesto del usuario */
+ const unlock=()=>ctx();
+ ['pointerdown','keydown'].forEach(e=>document.addEventListener(e,unlock,{capture:true}));
+ return{fx,play,stop,setMute,get muted(){return muted}};
+})();
+const sfx=n=>Audio2.fx(n);
+
+/* =====================================================================
+   5. EFECTOS (partículas, números flotantes, sacudida, destellos)
+   ===================================================================== */
+let parts=[],floats=[],shake=0,flash=0,flashColor='255,255,255',stars=[];
+function burst(x,y,colors,n=18,power=190){
+ if(CALM)n=Math.ceil(n/3);
+ for(let i=0;i<n;i++){const a=Math.random()*6.283,v=power*(.3+Math.random()*.7);
+  parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-60,life:.45+Math.random()*.45,c:pick(colors),s:pick([3,4,6])})}
+ if(parts.length>350)parts.splice(0,parts.length-350);
+}
+function floatText(t,color,x=320,y=170,size=14){
+ let yy=y;while(floats.some(f=>f.life>.8&&Math.abs(f.y-yy)<18&&Math.abs(f.x-x)<150))yy-=20;
+ floats.push({t,c:color,x,y:yy,size,life:1.4});
+}
+function impact(x,y,dmg,color='#A855F7'){
+ if(!CALM)shake=Math.min(18,3+dmg*.22);
+ stars.push({x,y,life:.22,r:18+Math.min(40,dmg*.7)});
+ burst(x,y,['#fff',color,'#E9D5FF'],10+Math.min(30,dmg/2|0),240);
+}
+function doFlash(rgb,a=.45){if(!CALM){flash=a;flashColor=rgb}}
+function text(t,x,y,size,color,align='center',font='"Press Start 2P",monospace'){
+ X.font=`${size}px ${font}`;X.textAlign=align;X.textBaseline='alphabetic';X.lineJoin='round';
+ X.lineWidth=Math.max(3,size/3);X.strokeStyle='#06080c';X.strokeText(t,x,y);X.fillStyle=color;X.fillText(t,x,y);X.textAlign='left';
+}
+function drawFX(dt){
+ for(const s of stars){s.life-=dt;const k=1-s.life/.22,r=s.r*(.5+k);
+  X.save();X.translate(s.x,s.y);X.globalAlpha=clamp(s.life/.15,0,1);X.fillStyle='#fff';
+  X.beginPath();for(let i=0;i<16;i++){const a=i*Math.PI/8,q=i%2?r*.35:r;X[i?'lineTo':'moveTo'](Math.cos(a)*q,Math.sin(a)*q)}X.closePath();X.fill();
+  X.strokeStyle='#A855F7';X.lineWidth=3;X.stroke();X.restore()}
+ stars=stars.filter(s=>s.life>0);
+ for(const p of parts){p.life-=dt;p.vy+=480*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;X.globalAlpha=clamp(p.life*2.5,0,1);R(p.c,p.x,p.y,p.s,p.s)}
+ X.globalAlpha=1;parts=parts.filter(p=>p.life>0);
+ for(const f of floats){f.life-=dt;f.y-=26*dt;X.globalAlpha=clamp(f.life*2,0,1);
+  const half=f.t.length*f.size*.5;text(f.t,clamp(f.x,half+4,636-half),f.y,f.size,f.c)}
+ X.globalAlpha=1;floats=floats.filter(f=>f.life>0);
+}
+function confettiBurst(){
+ if(CALM)return;
+ if(typeof window.confetti==='function'){
+  const colors=['#22D3EE','#A855F7','#C084FC','#22C55E','#38BDF8'];
+  window.confetti({particleCount:140,spread:90,origin:{y:.55},colors});
+  later(()=>window.confetti&&window.confetti({particleCount:80,spread:120,origin:{y:.4},colors}),500);
+ }else miniConfetti();
+}
+
+/* =====================================================================
+   6. SPRITES PIXEL-ART PROCEDURALES
+   ===================================================================== */
+function R(c,x,y,w,h,g=X){g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+const SW=96,SH=100,OX=48,OY=92;
+const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.imageSmoothingEnabled=false;return[c,g]};
+const[spr,G]=mk(SW,SH),[sil,Gs]=mk(SW,SH);
+const P=(c,x,y,w,h)=>R(c,OX+x,OY+y,w,h,G);               /* píxel de arte: origen en los pies */
+function limb(c,x0,y0,x1,y1,w){const n=Math.max(1,Math.ceil(Math.max(Math.abs(x1-x0),Math.abs(y1-y0))));for(let i=0;i<=n;i++)P(c,lerp(x0,x1,i/n)-w/2,lerp(y0,y1,i/n)-w/2,w,w)}
+function shade(hex,f){const n=parseInt(hex.slice(1),16),m=v=>clamp(Math.round(f<0?v*(1+f):v+(255-v)*f),0,255);return`rgb(${m(n>>16)},${m(n>>8&255)},${m(n&255)})`}
+/* Compone el sprite con contorno oscuro y lo coloca en el escenario */
+function stamp(cx,fy,scale=2,o={}){
+ Gs.globalCompositeOperation='source-over';Gs.clearRect(0,0,SW,SH);Gs.drawImage(spr,0,0);
+ Gs.globalCompositeOperation='source-in';Gs.fillStyle=o.outline||'#07090d';Gs.fillRect(0,0,SW,SH);
+ X.save();X.translate(Math.round(cx),Math.round(fy));if(o.flip)X.scale(-1,1);if(o.alpha!==undefined)X.globalAlpha=o.alpha;
+ const x=-OX*scale,y=-OY*scale,w=SW*scale,h=SH*scale;
+ for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]])X.drawImage(sil,x+dx*scale,y+dy*scale,w,h);
+ X.drawImage(spr,x,y,w,h);X.restore();
+}
+/* Cara reutilizable. hx,hy = esquina superior izquierda de la cabeza */
+function face(o,hx,hy,hs,d){
+ const ex=o.eyes||'normal',mo=o.mouth||'neutral',cxh=hx+hs/2+d,ey=hy+5,l=Math.round(cxh-4),r=Math.round(cxh+2),ink='#10131a';
+ for(const[e,s]of[[l,-1],[r,1]]){
+  if(ex==='dizzy'){P(ink,e,ey-1,1,1);P(ink,e+2,ey-1,1,1);P(ink,e+1,ey,1,1);P(ink,e,ey+1,1,1);P(ink,e+2,ey+1,1,1)}
+  else if(ex==='happy'){P(ink,e,ey+1,1,1);P(ink,e+1,ey,1,1);P(ink,e+2,ey+1,1,1)}
+  else if(ex==='tired'){P(shade(o.skin,-.25),e,ey-1,3,1);P(ink,e,ey,3,1)}
+  else if(ex==='wide'){P('#fff',e,ey-1,3,4);P(ink,e+1,ey,1,2)}
+  else{P('#fff',e,ey,2,2);P(ink,e+(d>=0?1:0),ey,1,2)}
+  if(ex==='angry'){const b=o.brow||o.hair;P(b,e+(s<0?-1:1),ey-3,2,1);P(b,e+(s<0?1:-1),ey-2,2,1)}
+  else if(ex!=='dizzy')P(o.brow||o.hair,e,ey-(ex==='wide'?3:2),3,1);
+ }
+ P(shade(o.skin,-.22),Math.round(cxh)-1,ey+2,2,2);
+ const my=hy+hs-4,mx=Math.round(cxh)-2;
+ if(mo==='smile'){P('#5b1f1f',mx,my,1,1);P('#5b1f1f',mx+1,my+1,3,1);P('#5b1f1f',mx+4,my,1,1)}
+ else if(mo==='open'){P('#3b0d0d',mx+1,my-1,3,3)}
+ else if(mo==='grit'){P('#3b0d0d',mx,my-1,5,3);P('#fff',mx,my,5,1)}
+ else if(mo==='tongue'){P('#3b0d0d',mx,my-1,5,3);P('#f47b8c',mx+1,my+1,3,3)}
+ else P('#5b1f1f',mx+1,my,3,1);
+ if(o.gl){const f=o.gl===2?'#0b0d12':'#c7d2e0';
+  for(const e of[l,r]){if(o.gl===2){P(f,e-1,ey-1,4,3);P('#38BDF8',e,ey-1,1,1)}else{P(f,e-1,ey-2,5,1);P(f,e-1,ey+2,5,1);P(f,e-1,ey-1,1,3);P(f,e+3,ey-1,1,3)}}
+  P(f,l+3,ey-1,r-l-3,1)}
+}
+/* Persona de frente. Parámetros: m (músculo 0..1), pose, expresiones, ropa... */
+function person(o){
+ G.clearRect(0,0,SW,SH);
+ const skin=o.skin||'#e0a67a',hair=o.hair||'#2b1b10',shirt=o.shirt||'#94A3B8',pants=o.pants||'#2a4d8f',sd=shade(skin,-.2),hi=shade(skin,.22);
+ const m=o.m??.25,big=o.big||0,pose=o.pose||'stand',d=o.d||1,t=o.t||0,ph=o.ph||0,tier=o.tier??1;
+ const tw=Math.round(13+m*5+big*7),sw=Math.round(tw+2+m*7+big*2),aw=Math.round(4+m*3+big*2),lw=o.lw||Math.round(5+m*2+big*2),hs=14;
+ const moving=pose==='walk'||pose==='sweep';
+ const breathe=moving?0:(Math.sin(t*(pose==='tired'?9:2.4))>0.2?1:0);
+ const tired=pose==='tired',lean=tired?7:(o.slump?2:0);
+ const step=moving?Math.round(Math.sin(ph)*3):0;
+ const stance=(pose==='guard'||pose==='punch'||tired||pose==='flex')?3:0;
+ const hip=-17,top=-37+breathe+lean;
+ /* piernas y tenis */
+ for(const s of[-1,1]){
+  const hx=s*(lw/2+1),fx=s*(lw/2+1+stance)+(moving?s*step:0),lift=moving&&s*step>1?2:0;
+  limb(s<0?sd:skin,hx,hip,fx,-4-lift,lw);
+  if(m>.55&&!o.lw)P(hi,fx-1,-10-lift,2,3);
+  P(o.shoe||'#e2e8f0',fx-lw/2-(d<0?2:0),-3-lift,lw+2,3);P(o.shoeS||'#EF4444',fx-lw/2,-2-lift,lw,1);
+ }
+ /* short */
+ P(pants,-tw/2,-22+(tired?2:0),tw,7);P(shade(pants,.25),-tw/2,-22+(tired?2:0),tw,1);
+ for(const s of[-1,1])P(pants,s<0?-tw/2-stance/2:1+stance/2,-16,tw/2-1,3);
+ /* torso en V */
+ const th=-21-top;
+ for(let i=0;i<th;i++){const w=Math.round(lerp(sw,tw-1,Math.pow(i/th,1.4)));
+  P(skin,-w/2,top+i,w,1);
+  const strap=tier>=3?3:tier===2?2:0;
+  if(strap&&i<5){P(shirt,-w/4-strap/2,top+i,strap,1);P(shirt,w/4-strap/2,top+i,strap,1)}
+  else{const side=tier>=3&&i<th-6?Math.round(w*.12):0;P(shirt,-w/2+side,top+i,w-side*2,1);P(shade(shirt,-.22),w/2-side-3,top+i,3,1)}
+ }
+ if(m>.4&&tier>0){const c=shade(shirt,-.3);P(c,-sw/4-2,top+8,sw/4,1);P(c,3,top+8,sw/4,1);P(c,0,top+5,1,4)}
+ if(m>.68&&tier>=2){const c=shade(shirt,-.3);for(let i=0;i<3;i++){P(c,-4,top+10+i*3,3,1);P(c,2,top+10+i*3,3,1)}}
+ if(o.label){/* letras pixel 3x5: B R O */['110101110101110','110101110110101','111101101101111'].forEach((g,n)=>[...g].forEach((v,i)=>{if(v==='1')P('#fff',-6+n*4+i%3,top+7+(i/3|0),1,1)}))}
+ P(shade(pants,-.35),-tw/2,-23+(tired?2:0),tw,2);
+ /* cabeza */
+ const hy=top-hs-1+(tired?3:0)-(o.lookUp?1:0),hx=-hs/2+(o.slump?d*2:0);
+ P(sd,-4+(o.slump?d:0),top-3,8,4);
+ P(skin,hx+1,hy,hs-2,hs);P(skin,hx,hy+2,hs,hs-4);P(sd,hx-1,hy+6,1,3);P(sd,hx+hs,hy+6,1,3);P(hi,hx+3,hy+2,3,1);
+ if(o.beard){P(hair,hx+1,hy+hs-5,hs-2,5);P(hair,hx,hy+hs-7,2,4);P(hair,hx+hs-2,hy+hs-7,2,4)}
+ face({...o,skin,hair},hx,hy,hs,o.d?d:0);
+ if(o.spikes){const c=o.spikes,cl=shade(c,.45);P(c,hx,hy-2,hs,5);[[-1,6],[3,9],[7,11],[11,8]].forEach(([a,h])=>{for(let i=0;i<h;i++){const w=Math.max(1,4-Math.floor(i*4/h));P(c,hx+a+(4-w)/2,hy-1-i,w,1)}P(cl,hx+a+1,hy-h/2,1,3)})}
+ else if(o.cap){P(o.cap,hx,hy-2,hs,5);P(shade(o.cap,-.3),hx+(d>0?hs-3:-4),hy+2,7,2);P('#fff',hx+hs/2-1,hy-1,2,2)}
+ else if(!o.bald){P(hair,hx+1,hy-2,hs-2,4);P(hair,hx,hy,hs,2);P(hair,hx,hy+2,2,4);P(hair,hx+hs-2,hy+2,2,3);P(shade(hair,.25),hx+4,hy-1,4,1)}
+ if(o.band){P(o.band,hx,hy+1,hs,2);P(o.band,hx+(d>0?-3:hs),hy+2,3,2)}
+ /* brazos: [codo, mano] relativos al hombro */
+ const shY=top+3,A=s=>{
+  const sh=[s*(sw/2+aw/2-2),shY];let e=[s*1,9],h=[s*1,18];
+  const front=s===d;
+  switch(pose){
+   case'walk':{const q=Math.sin(ph)*3*s;e=[s,9];h=[s+q,17];break}
+   case'guard':e=[s*3,9];h=[-s*4,0+Math.round(Math.sin(t*6+s)*1)];break;
+   case'punch':if(front){e=[d*9,1];h=[d*20,-1]}else{e=[s*3,9];h=[-s*5,1]}break;
+   case'flex':{const q=Math.sin(t*5)>0?1:0;e=[s*9,0];h=[s*7,-11-q];break}
+   case'watch':e=[s,9];h=[-s*(sw/2),7+(s>0?2:0)];break;
+   case'curl':{const q=(1+Math.sin(ph))/2;e=[s*2,9];h=[s*2,17-q*18];break}
+   case'phone':if(front){e=[s*2,10];h=[-s*5,3]}break;
+   case'drink':if(front){e=[s*5,5];h=[-s*7,-8]}break;
+   case'stretch':e=[s*4,-8];h=[-s*3,-18];break;
+   case'talk':if(front){e=[s*6,7];h=[s*9,-3-(Math.sin(t*7)>0?4:0)]}else{e=[s,10];h=[-s*3,8]}break;
+   case'sweep':e=[s*2+d*3,8];h=[d*8-s*(sw/2-3),10+s*2];break;
+   case'fist':if(front){e=[s*7,-3];h=[s*5,-17]}break;
+   case'cheer':e=[s*7,-3];h=[s*8,-16-(Math.sin(t*9)>0?2:0)];break;
+   case'tired':e=[s*3,9];h=[-s*2,17];break;
+   case'hit':e=[s*8,2];h=[s*13,8];break;
+   case'rope':e=[s*3,9];h=[s*9,12];break;
+   default:if(o.slump){e=[s*0,10];h=[-s*1,19]}
+  }
+  return{sh,el:[sh[0]+e[0],sh[1]+e[1]],ha:[sh[0]+h[0],sh[1]+h[1]]};
+ };
+ for(const s of[-1,1]){
+  const a=A(s),col=s<0?sd:skin;
+  P(col,a.sh[0]-aw/2-1,a.sh[1]-3,aw+2,aw+1);                    /* hombro */
+  limb(col,...a.sh,...a.el,aw+(m>.5?1:0));
+  if(m>.35){const mx=(a.sh[0]+a.el[0])/2,my=(a.sh[1]+a.el[1])/2,bw=aw+Math.round(m*2);P(col,mx-bw/2,my-bw/2,bw,bw);P(hi,mx-1,my-bw/2+1,3,1)}
+  limb(col,...a.el,...a.ha,Math.max(3,aw-1));
+  if(tier===0){limb(shirt,...a.sh,...a.el,aw+1)}else if(tier===1){limb(shirt,...a.sh,(a.sh[0]+a.el[0])/2,(a.sh[1]+a.el[1])/2,aw+1)}
+  const[x,y]=a.ha;
+  if(o.gloves){P(o.gloves,x-4,y-4,8,8);P(shade(o.gloves,.35),x-2,y-3,3,2);P('#f1f5f9',x-3,y+3,6,2)}
+  else{if(o.wraps)P(o.wraps,(a.el[0]+x*3)/4-2,(a.el[1]+y*3)/4-2,4,4);P(col,x-2,y-2,4,4)}
+  if(pose==='curl'){P('#cbd5e1',x-6,y-1,12,2);P('#334155',x-8,y-4,3,8);P('#334155',x+5,y-4,3,8)}
+  if(pose==='phone'&&s===d){P('#0f172a',x-2,y-7,5,8);P('#38BDF8',x-1,y-6,3,5)}
+  if(pose==='drink'&&s===d){P('#38BDF8',x-2,y-5,5,10);P('#f1f5f9',x-1,y-7,3,2)}
+  if(pose==='talk'&&s!==d){P('#f6ecd0',x-6,y-6,11,13);for(let i=0;i<4;i++)P('#94A3B8',x-4,y-3+i*3,7,1)}
+  if(pose==='fist'&&s!==d&&o.flyer){P('#f6ecd0',x-5,y-3,10,12);P('#EF4444',x-5,y-3,10,3)}
+ }
+ if(pose==='sweep'){const bx=d*(18+Math.round(Math.sin(ph)*4));limb('#92623a',d*5,shY+8,bx,-4,2);P('#d4a72c',bx-5,-5,11,4);P('#a67c1a',bx-5,-1,11,1)}
+ /* sudor */
+ if(o.sweat){for(let i=0;i<4;i++){const k=(t*1.4+i*.27)%1,sx=[hx-3,hx+hs+2,-sw/2-3,sw/2+2][i],sy=(i<2?hy+2:top+4)+k*13;P('#7dd3fc',sx,sy,2,3);P('#e0f2fe',sx,sy,1,1)}}
+}
+/* Persona acostada (suelo / banca) */
+function lying(o){
+ G.clearRect(0,0,SW,SH);const skin=o.skin,sd=shade(skin,-.2),aw=Math.round(5+(o.m||.2)*3),th=Math.round(11+(o.m||.2)*4);
+ const hc=o.spikes||o.hair;P(skin,-34,-14,13,13);P(hc,-35,-15,6,15);P(hc,-30,-15,8,3);if(o.spikes)for(let i=0;i<4;i++)P(hc,-39-(i%2)*2,-14+i*4,5,2);
+ if(o.dizzy){for(const[a,b]of[[0,0],[2,2],[1,1],[2,0],[0,2]])P('#10131a',-28+a,-10+b,1,1)}else{P('#10131a',-28,-9,4,1);P('#5b1f1f',-24,-5,3,1)}
+ P(o.shirt,-21,-th,24,th);P(shade(o.shirt,.25),-21,-th,24,2);
+ P(o.pants,3,-th+1,12,th-1);P(skin,15,-10,22,6);P(sd,15,-5,20,5);P('#e2e8f0',36,-11,5,11);
+ if(!o.noArm){limb(skin,-14,-th,-8,-3,aw);limb(sd,-8,-3,4,-2,aw-1)}
+ if(o.dizzy)for(let i=0;i<3;i++){const a=(o.t||0)*5+i*2.1;P('#E9D5FF',-29+Math.cos(a)*11,-21+Math.sin(a)*4,3,3)}
+}
+/* Apariencia del protagonista según estadísticas */
+function level(){return S?(S.STR+S.STA+S.REC)/300:0}
+function heroLook(extra={}){
+ const lv=level(),tier=lv>=.62?3:lv>=.42?2:lv>=.22?1:0,low=S&&S.ENG<35&&mode!=='custom'&&mode!=='story';
+ return{skin:PL.skin,hair:PL.hair,shirt:PL.shirt,pants:PL.pants,gl:PL.gl,beard:PL.beard,cap:PL.cap?PL.shirt:0,
+  m:clamp((lv-.08)*1.35,0,1),tier,slump:low||tier===0,sweat:low,eyes:low?'tired':tier>=2?'normal':'normal',mouth:low?'open':tier>=2?'smile':'neutral',
+  band:tier>=2&&!PL.cap?'#EF4444':0,wraps:tier>=2?'#f1f5f9':0,shoeS:tier>=2?'#A855F7':'#64748b',...extra};
+}
+function aura(cx,fy,t,scale=2){
+ const lv=level();if(lv<.55)return;
+ const gold=lv>=.75,col=gold?'168,85,247':'52,211,153';
+ const g=X.createRadialGradient(cx,fy-30*scale,6,cx,fy-30*scale,46*scale);
+ g.addColorStop(0,`rgba(${col},${.28+.1*Math.sin(t*5)})`);g.addColorStop(1,`rgba(${col},0)`);
+ X.fillStyle=g;X.fillRect(cx-50*scale,fy-80*scale,100*scale,90*scale);
+ for(let i=0;i<10;i++){const k=(t*.55+i*.1)%1,x=cx+Math.sin(i*7.3)*26*scale;X.globalAlpha=1-k;R(`rgb(${col})`,x,fy-k*66*scale,scale*1.5,scale*3)}
+ X.globalAlpha=1;
+}
+function hero(cx,fy,extra={},scale=2,opts={}){
+ if(!opts.noAura)aura(cx,fy,extra.t||0,scale);
+ person(heroLook(extra));stamp(cx,fy,scale,opts);
+}
+/* Braulio "El Ciclado": torso enorme, piernas de popote */
+function brau(extra={}){
+ const ex=extra.state==='tired';
+ return{skin:'#d98a5b',hair:'#6b4a10',brow:'#3b2606',shirt:'#EF4444',pants:'#111827',m:1,big:1,lw:4,tier:3,spikes:'#FACC15',band:'#A855F7',
+  label:'BRO',shoe:'#A855F7',shoeS:'#111827',
+  eyes:ex?'tired':'angry',mouth:ex?'tongue':'grit',sweat:ex,...extra,gloves:extra.gloves?'#7f1d1d':0};
+}
+
+/* =====================================================================
+   7. ESCENARIOS
+   ===================================================================== */
+function disc(g,c,cx,cy,r){g.fillStyle=c;for(let d=-r;d<=r;d+=2){const w=Math.round(Math.sqrt(r*r-d*d));g.fillRect(cx-w,cy+d,w*2,2)}}
+function box(g,c,x,y,w,h){R('#07090d',x-2,y-2,w+4,h+4,g);R(c,x,y,w,h,g)}
+function gtext(g,t,x,y,size,color){g.font=`${size}px "Press Start 2P",monospace`;g.textAlign='center';g.fillStyle=color;g.fillText(t,x,y)}
+const MIR={x:214,y:92,w:212,h:140};
+function buildGym(){
+ const[c,g]=mk(640,360);
+ /* pared y paneles */
+ const wall=g.createLinearGradient(0,0,0,240);wall.addColorStop(0,'#10141f');wall.addColorStop(1,'#232c42');g.fillStyle=wall;g.fillRect(0,0,640,240);
+ for(let y=60;y<220;y+=16)for(let x=(y/16)%2*-18;x<640;x+=36)R('#ffffff06',x+1,y+1,34,14,g);
+ R('#0d111a',0,0,640,18,g);R('#2b354a',0,18,640,3,g);
+ for(const x of[104,320,536]){box(g,'#334155',x-28,12,56,10);R('#FEF3C7',x-24,22,48,4,g)}
+ R('#A855F7',0,222,640,4,g);R('#1c2333',0,226,640,14,g);
+ /* piso de caucho con perspectiva */
+ const fl=g.createLinearGradient(0,240,0,360);fl.addColorStop(0,'#171c28');fl.addColorStop(1,'#2a3040');g.fillStyle=fl;g.fillRect(0,240,640,120);
+ g.strokeStyle='#0c0f17';g.lineWidth=2;
+ for(let x=-640;x<=1280;x+=80){g.beginPath();g.moveTo(320+(x-320)*.45,240);g.lineTo(x,360);g.stroke()}
+ for(const y of[240,254,274,302,340])R('#0c0f17',0,y,640,2,g);
+ let seed=7;const sr=()=>(seed=(seed*16807)%2147483647)/2147483647;
+ for(let i=0;i<520;i++)R(sr()<.1?'#38bdf844':'#ffffff12',sr()*640,242+sr()*116,2,2,g);
+ /* letrero */
+ box(g,'#0b0e14',232,38,176,38);gtext(g,'MACRO GYM',320,63,16,'#22D3EE');
+ /* carteles pixel-art */
+ const poster=(x,y,w,l1,l2,c1,icon)=>{box(g,'#f1e7cf',x,y,w,62);R(c1,x+4,y+4,w-8,30,g);icon(x+w/2,y+19);gtext(g,l1,x+w/2,y+46,8,'#111827');gtext(g,l2,x+w/2,y+57,8,c1)};
+ poster(14,48,80,'NO PAIN','NO GAIN','#b91c1c',(x,y)=>{R('#f1f5f9',x-20,y-2,40,4,g);for(const s of[-1,1]){R('#111827',x+s*20-3,y-11,6,22,g);R('#111827',x+s*12-3,y-7,6,14,g)}});
+ poster(112,48,80,'DUERME','7-9 H','#1d4ed8',(x,y)=>{disc(g,'#FEF3C7',x-6,y,10);disc(g,'#1d4ed8',x-1,y-3,9);gtext(g,'z',x+12,y,8,'#fff');gtext(g,'Z',x+22,y-4,8,'#fff')});
+ poster(446,48,80,'TOMA','AGUA','#0e7490',(x,y)=>{R('#e0f2fe',x-7,y-10,14,22,g);R('#38BDF8',x-5,y-2,10,12,g);R('#111827',x-4,y-14,8,4,g)});
+ poster(544,48,82,'COME','REAL','#15803D',(x,y)=>{disc(g,'#EF4444',x-5,y+2,9);disc(g,'#EF4444',x+5,y+2,9);R('#7c4a1e',x-1,y-13,3,8,g);R('#4ADE80',x+2,y-12,8,4,g)});
+ /* espejo (base; el reflejo se dibuja en vivo) */
+ box(g,'#64748b',MIR.x-6,MIR.y-6,MIR.w+12,MIR.h+6);
+ const mg=g.createLinearGradient(0,MIR.y,0,MIR.y+MIR.h);mg.addColorStop(0,'#3b5576');mg.addColorStop(1,'#223148');g.fillStyle=mg;g.fillRect(MIR.x,MIR.y,MIR.w,MIR.h);
+ for(const x of[262,334,376])R('#ffffff0a',x,MIR.y,14,MIR.h,g);
+ for(const x of[285,355])R('#64748b',x,MIR.y,2,MIR.h,g);
+ /* rack de mancuernas */
+ for(const x of[18,180])box(g,'#475569',x,160,8,88);
+ for(const[y,s]of[[174,7],[204,9],[236,11]]){box(g,'#334155',16,y+8,174,6);
+  for(let i=0;i<4;i++){const x=48+i*37,col=['#38BDF8','#4ADE80','#A855F7','#EF4444'][i];
+   R('#cbd5e1',x-9,y-1,18,4,g);for(const d of[-1,1]){box(g,'#111827',x+d*11-4,y+7-s*2,8,s*2);R(col,x+d*11-3,y+9-s*2,2,s*2-4,g)}}}
+ /* banco plano y árbol de discos */
+ box(g,'#7f1d1d',452,216,106,12);R('#b91c1c',454,216,102,4,g);for(const x of[466,540]){box(g,'#64748b',x,228,6,20);box(g,'#475569',x-8,246,22,5)}
+ box(g,'#475569',596,150,8,100);box(g,'#334155',578,248,44,6);
+ for(const[y,r,col]of[[178,13,'#38BDF8'],[210,17,'#4ADE80'],[240,15,'#A855F7']]){disc(g,'#07090d',600,y,r+2);disc(g,col,600,y,r);disc(g,'#111827',600,y,r-5);disc(g,'#94A3B8',600,y,3)}
+ /* kettlebells y planta */
+ for(const[x,r,col]of[[436,8,'#EF4444'],[204,7,'#38BDF8']]){box(g,'#1f2937',x-r+2,250-r*2-5,r*2-4,4);disc(g,'#07090d',x,250-r,r+2);disc(g,col,x,250-r,r);R('#ffffff88',x-r/2,250-r-r/2,3,3,g)}
+ for(const[dx,h]of[[-9,28],[-2,40],[6,32],[11,20]]){R('#15803D',630+dx-9,228-h,6,h,g);R('#22C55E',630+dx-9,228-h,2,h,g)}
+ box(g,'#7E22CE',612,228,22,22);
+ return c;
+}
+function buildRing(){
+ const[c,g]=mk(640,360);
+ const bg=g.createLinearGradient(0,0,0,250);bg.addColorStop(0,'#06080e');bg.addColorStop(1,'#1b1730');g.fillStyle=bg;g.fillRect(0,0,640,360);
+ box(g,'#111827',212,72,216,34);gtext(g,'FINAL FITNESS',320,94,13,'#A855F7');
+ for(const x of[60,190,450,580]){box(g,'#334155',x-14,60,28,12);R('#FEF3C7',x-10,72,20,4,g)}
+ /* lona en perspectiva */
+ g.fillStyle='#07090d';g.beginPath();g.moveTo(56,236);g.lineTo(584,236);g.lineTo(652,348);g.lineTo(-12,348);g.fill();
+ const m=g.createLinearGradient(0,240,0,344);m.addColorStop(0,'#33415c');m.addColorStop(1,'#64748b');g.fillStyle=m;
+ g.beginPath();g.moveTo(60,240);g.lineTo(580,240);g.lineTo(640,344);g.lineTo(0,344);g.fill();
+ g.strokeStyle='#ffffff30';g.lineWidth=3;g.beginPath();g.ellipse(320,298,120,34,0,0,7);g.stroke();gtext(g,'★',320,305,22,'#ffffff30');
+ R('#7f1d1d',0,344,640,16,g);
+ /* postes y cuerdas traseras */
+ for(const[x,col]of[[60,'#38BDF8'],[580,'#EF4444']]){box(g,'#94A3B8',x-5,152,10,92);box(g,col,x-8,148,16,26)}
+ [['#EF4444',166],['#f1f5f9',190],['#38BDF8',214]].forEach(([col,y])=>{R('#07090d',60,y-1,520,6,g);R(col,60,y,520,3,g)});
+ return c;
+}
+let gymBg=buildGym(),ringBg=buildRing();
+if(document.fonts&&document.fonts.load)Promise.all([document.fonts.load('10px "Press Start 2P"'),document.fonts.load('800 14px "JetBrains Mono"')]).then(()=>{gymBg=buildGym();ringBg=buildRing()}).catch(()=>{});
+function gymScene(t){
+ X.drawImage(gymBg,0,0);
+ /* reloj real */
+ const d=new Date(),m=d.getMinutes()+d.getSeconds()/60,h=d.getHours()%12+m/60;
+ disc(X,'#07090d',210,58,17);disc(X,'#f1f5f9',210,58,15);X.lineWidth=2;
+ for(const[v,l,col]of[[m/60,12,'#111827'],[h/12,8,'#EF4444']]){X.strokeStyle=col;X.beginPath();X.moveTo(210,58);X.lineTo(210+Math.sin(v*6.283)*l,58-Math.cos(v*6.283)*l);X.stroke()}
+ /* reflejo sutil en el espejo */
+ X.save();X.beginPath();X.rect(MIR.x,MIR.y,MIR.w,MIR.h);X.clip();
+ for(const c of cast)if(!(c.walk&&c.wait>0)){person({...c,t,sweat:0});stamp(c.x,Math.min(c.y-52,244),1.6,{alpha:.2,flip:true})}
+ if(act!=='bench'&&act!=='rest'){person(heroLook({t,pose:act==='rope'?'rope':'stand',sweat:0}));stamp(320,240,1.7,{alpha:.28,flip:true})}
+ const sx=((t*40)%560)-120;X.fillStyle='#ffffff12';X.beginPath();X.moveTo(MIR.x+sx,MIR.y);X.lineTo(MIR.x+sx+26,MIR.y);X.lineTo(MIR.x+sx-34,MIR.y+MIR.h);X.lineTo(MIR.x+sx-60,MIR.y+MIR.h);X.fill();
+ X.restore();
+ /* luz ambiental */
+ X.save();X.globalCompositeOperation='lighter';
+ for(const[i,x]of[104,320,536].entries()){const a=.055+.008*Math.sin(t*2+i*2),g=X.createLinearGradient(0,26,0,330);g.addColorStop(0,`rgba(254,243,199,${a})`);g.addColorStop(1,'rgba(254,243,199,0)');
+  X.fillStyle=g;X.beginPath();X.moveTo(x-22,26);X.lineTo(x+22,26);X.lineTo(x+96,330);X.lineTo(x-96,330);X.fill()}
+ X.restore();
+}
+function ringScene(t){
+ X.drawImage(ringBg,0,0);
+ for(let row=0;row<2;row++)for(let i=0;i<22;i++){const x=i*31+(row?16:0)-6,y=124+row*20+Math.sin(t*4+i*1.7+row)*(B&&B.cheer>0?5:1.5);
+  disc(X,row?'#252044':'#191633',x,y,8);R(row?'#252044':'#191633',x-12,y+7,24,14);if((i*7+row*3+(t*2|0))%23===0)R('#f1f5f9',x+7,y-9,3,3)}
+ /* cuerdas traseras delante del público */
+ for(const x of[60,580]){box(X,'#94A3B8',x-5,152,10,92);box(X,x<300?'#38BDF8':'#EF4444',x-8,148,16,26)}
+ [['#EF4444',166],['#f1f5f9',190],['#38BDF8',214]].forEach(([col,y])=>{R('#07090d',60,y-1,520,6);R(col,60,y,520,3)});
+ X.save();X.globalCompositeOperation='lighter';
+ for(const[x,tx]of[[60,190],[190,215],[450,425],[580,450]]){const g=X.createLinearGradient(0,76,0,330);g.addColorStop(0,'rgba(254,243,199,.13)');g.addColorStop(1,'rgba(254,243,199,0)');
+  const s=Math.sin(t*.8+x)*18;X.fillStyle=g;X.beginPath();X.moveTo(x-8,76);X.lineTo(x+8,76);X.lineTo(tx+55+s,330);X.lineTo(tx-55+s,330);X.fill()}
+ X.restore();
+}
+function frontRope(){R('#07090d',0,341,640,7);R('#EF4444',0,342,640,4);for(const x of[6,634]){box(X,'#94A3B8',x-6,300,12,60);box(X,'#A855F7',x-8,330,16,24)}}
+function shadow(x,y,w){X.fillStyle='rgba(0,0,0,.35)';X.beginPath();X.ellipse(x,y,w,w*.17,0,0,7);X.fill()}
+function raysBg(t){
+ R('#090A0F',0,0,640,360);const cx=320,cy=250;
+ for(let i=0;i<22;i++){const a=i*Math.PI/11+t*.12,b=a+Math.PI/22;X.fillStyle=i%2?'#11131C':'#181035';X.beginPath();X.moveTo(cx,cy);X.lineTo(cx+800*Math.cos(a),cy+800*Math.sin(a));X.lineTo(cx+800*Math.cos(b),cy+800*Math.sin(b));X.fill()}
+ const g=X.createRadialGradient(cx,cy,20,cx,cy,300);g.addColorStop(0,'rgba(168,85,247,.28)');g.addColorStop(1,'rgba(34,211,238,0)');X.fillStyle=g;X.fillRect(0,0,640,360);
+ for(let i=0;i<28;i++){const k=(t*.08+i*.137)%1;X.globalAlpha=1-k;R(i%3?'#22D3EE':'#A855F7',(i*97)%640,360-k*360,3,3)}X.globalAlpha=1;
+}
+
+/* =====================================================================
+   8. ELENCO DEL GIMNASIO Y GLOBOS DE DIÁLOGO
+   ===================================================================== */
+const SKINS=[['#e0a67a','#2b1b10'],['#c68a5c','#111111'],['#f0c29a','#8a5a2b'],['#8d5a3a','#111111'],['#e8b98e','#d9b24c']];
+const SHC=['#e84a5f','#38BDF8','#A855F7','#4ADE80','#a78bfa','#C084FC','#e2e8f0','#2dd4bf'];
+const PAC=['#2a4d8f','#222222','#444b57','#6b2a2a','#1f5a3a'];
+function look(){const k=pick(SKINS);return{skin:k[0],hair:k[1],shirt:pick(SHC),pants:pick(PAC),m:Math.random()*.6,tier:1+rnd(2),cap:Math.random()<.18?pick(SHC):0,beard:Math.random()<.15}}
+function spawnCast(){
+ cast=[];const used=[];
+ const free=x=>used.every(u=>Math.abs(u-x)>=56)&&Math.abs(x-320)>70;
+ const slot=a=>{const c=a.filter(s=>free(s[0])),s=pick(c.length?c:a);used.push(s[0]);return s};
+ const add=o=>{cast.push(Object.assign(look(),{x:320,y:296,d:1,pose:'stand',ph:Math.random()*6,wait:0},o))};
+ let f=Math.random()<.2?0:rnd(6)+1;if(f&&f===lastFeat)f=f%6+1;if(f)lastFeat=f;
+ if(f===1){const s=slot([[130,1],[500,-1]]);add({x:s[0],d:s[1],pose:'talk',shirt:'#C084FC',m:.8,tier:2,say:'¡Mi rutina de pecho es secreta y garantizada! Solo cuesta $999…'})}
+ if(f===2){const l=Math.random()<.5,d=l?1:-1,lx=l?90:550,fx=l?162:478;used.push(lx,fx);add({x:lx,d,pose:'curl',m:.7,tier:2,say:'¡Hoy sí rompo mi récord de curl!'});add({x:fx,d:-d,pose:'watch',hair:'#cfd5dc'})}
+ if(f===3){const d=Math.random()<.5?1:-1;add({walk:1,pose:'sweep',y:266,d,spd:50,x:d>0?-50:690,wait:rnd(2),shirt:'#2dd4bf',pants:'#444b57',cap:'#2dd4bf'})}
+ if(f===4){const s=slot([[70,1],[572,-1]]);add({x:s[0],d:s[1],pose:'watch'})}
+ if(f===5){const s=slot([[130,1],[500,-1]]);add({x:s[0],d:s[1],pose:'flex',m:1,big:.8,tier:3,shirt:'#334155',cap:0,say:'¡Mírenme, soy pura masa muscular!'})}
+ if(f===6){used.push(480);add({x:480,d:-1,pose:'watch',m:1,big:.8,shirt:'#a78bfa',hair:'#d9b24c',beard:1,cap:0,say:'¡Dame 100 repeticiones más! ¡Sin excusas!'})}
+ for(let i=0,n=1+rnd(2);i<n;i++){
+  if(Math.random()<.55){const d=Math.random()<.5?1:-1;add({k:'ex',walk:1,pose:'walk',y:pick([258,266,276]),d,spd:35+Math.random()*55,x:d>0?-50:690,wait:Math.random()*7})}
+  else{const fr=[[66,1],[142,1],[494,-1],[566,-1]].filter(s=>free(s[0]));if(fr.length){const s=pick(fr);used.push(s[0]);add({x:s[0],d:s[1],pose:pick(['stand','phone','stretch','curl','drink'])})}}
+ }
+}
+function castUpdate(dt){
+ for(const c of cast){
+  if(!c.walk){c.ph+=6*dt;continue}
+  if(c.wait>0){c.wait-=dt;continue}
+  c.x+=c.d*c.spd*dt;c.ph=c.x*.14;
+  if((c.d>0&&c.x>690)||(c.d<0&&c.x<-50)){c.wait=3+Math.random()*8;if(c.k==='ex')Object.assign(c,look(),{spd:35+Math.random()*55});c.d=Math.random()<.5?1:-1;c.x=c.d>0?-50:690}
+ }
+}
+function drawCast(list,t){for(const c of list){if(c.walk&&c.wait>0)continue;shadow(c.x,c.y,24+(c.big||0)*8);person({...c,t:t+c.x*.01,d:c.d});stamp(c.x,c.y,2)}}
+function bubble(t,cx,by,mw=190){
+ X.font='800 13px "JetBrains Mono",monospace';
+ const L=[];let cur='';for(const w of t.split(' ')){const n=cur?cur+' '+w:w;if(X.measureText(n).width>mw&&cur){L.push(cur);cur=w}else cur=n}L.push(cur);
+ const w=Math.ceil(Math.max(...L.map(s=>X.measureText(s).width)))+18,h=L.length*16+12,bx=clamp(cx-w/2,6,634-w),ty=Math.max(6,by-10-h),tx=clamp(cx,bx+14,bx+w-14);
+ R('#07090d',bx-3,ty,w+6,h);R('#07090d',bx,ty-3,w,h+6);R('#f8fafc',bx,ty,w,h);
+ for(let i=0;i<5;i++){R('#07090d',tx-9+i*2,ty+h+i*2,18-i*4,3);if(i<4)R('#f8fafc',tx-6+i*2,ty+h+i*2-1,12-i*4,2)}
+ X.fillStyle='#0f172a';X.textAlign='left';L.forEach((s,i)=>X.fillText(s,bx+9,ty+19+i*16));
+}
+
+/* =====================================================================
+   9. INTERFAZ GENERAL
+   ===================================================================== */
+const inMeta=()=>mode==='menu'||mode==='custom'||mode==='story';
+function ui(){
+ const show=['kitchen','gym','train','rest','event','intro'].includes(mode);
+ $('stats').style.display=show?'':'none';
+ if(show){
+  if(!$('stats').children.length)$('stats').innerHTML=STATS.map(([k,n,c])=>`<div class="st"><span>${n}</span><b id="v-${k}"></b><div class="bar"><i id="b-${k}" style="background:${c}"></i></div></div>`).join('');
+  for(const[k]of STATS){$('v-'+k).textContent=Math.round(S[k]);$('b-'+k).style.width=S[k]+'%'}
+ }
+ $('day').textContent=inMeta()||mode==='goals'?'':mode==='summary'?'RESULTADO':day>14?'DÍA 15':`DÍA ${day}/14`;
+ $('home').hidden=mode==='menu';
+ $('layout').classList.toggle('solo',['menu','goals','story','summary'].includes(mode));
+}
+function setMode(m){mode=m;ui()}
+function panel(html){
+ const p=$('panel');p.innerHTML=html;p.style.animation='none';void p.offsetWidth;p.style.animation='';
+}
+/* Asocia clics a los elementos recién pintados */
+function on(selector,fn){document.querySelectorAll('#panel '+selector).forEach(b=>b.addEventListener('click',()=>fn(b)))}
+/* En pantallas angostas mantiene visible lo importante */
+function scrollToEl(el){if(window.innerWidth<1060)el.scrollIntoView({behavior:CALM?'auto':'smooth',block:'start'})}
+function gain(k,v){
+ const o=S[k];S[k]=clamp(o+v,0,100);const d=Math.round(S[k]-o);
+ if(d){const n=STATS.find(a=>a[0]===k)[1].toUpperCase();floatText((d>0?'+':'')+d+' '+n,d>0?'#4ADE80':'#EF4444',320,150,11)}
+ if(k!=='ENG'&&Math.floor(S[k]/25)>Math.floor(o/25)){sfx('up');floatText('¡NUEVO NIVEL!','#A855F7',320,110,16);burst(320,200,['#A855F7','#4ADE80','#fff'],34,230)}
+ ui();
+}
+function updateMuteBtn(){const m=Audio2.muted;$('mu').textContent=m?'🔇':'🔊';$('mu').setAttribute('aria-pressed',m);$('mu').setAttribute('aria-label',m?'Activar sonido':'Silenciar')}
+function toggleMute(){Audio2.setMute(!Audio2.muted);updateMuteBtn();if(!Audio2.muted)sfx('click')}
+$('mu').addEventListener('click',toggleMute);
+$('home').addEventListener('click',()=>{
+ const playing=['kitchen','gym','train','rest','event','intro','battle'].includes(mode);
+ if(playing&&!window.confirm('¿Volver al menú? Tu partida se guarda desde el inicio del día actual.'))return;
+ sfx('click');menu();
+});
+
+/* =====================================================================
+   10. MENÚ, PERSONALIZACIÓN, HISTORIA Y OBJETIVOS
+   ===================================================================== */
+function clearScene(){cancelTimers();act=null;tm=null;B=null;ST=null;cast=[];parts=[];floats=[];stars=[];shake=0;flash=0}
+function menu(){
+ clearScene();reset();setMode('menu');Audio2.play('menu');
+ const sv=loadSave();
+ panel(`<div class="col">
+  <button class="btn-main big" id="ini">▶ INICIAR</button>
+  <button class="btn-act big" id="con" ${sv?'':'disabled'}>⏩ CONTINUAR</button>
+  <span class="mu">${sv?`Partida guardada: ${GOALS[sv.g].n} · ${sv.day>14?'Batalla final':'Día '+sv.day+' de 14'}`:'No hay partida guardada'}</span>
+  <button id="how">❓ ¿Cómo jugar?</button></div>`);
+ on('#ini',()=>{sfx('click');custom()});
+ on('#how',()=>{sfx('click');how(menu)});
+ on('#con',()=>{
+  const s=loadSave();if(!s)return;sfx('click');clearScene();reset();
+  gkey=s.g;goal=GOALS[s.g];day=s.day;S=s.S;Object.assign(T,s.T);
+  if(Array.isArray(s.hist))hist=s.hist;
+  if(Array.isArray(s.evq)&&s.evq.length===EVENT_DAYS.length&&s.evq.every(i=>EVENTS[i]))evq=s.evq;
+  if(s.pl)Object.assign(PL,s.pl);
+  if(day>14)intro();else kitchen();
+ });
+}
+function how(back){
+ panel(`<h2>¿Cómo jugar?</h2>
+ <p>🍞 <b>Carbohidratos = energía.</b> Llenan tu glucógeno. Con menos del 35 % de la meta entrenarás a medias.</p>
+ <p>🥩 <b>Proteína = reparación y fuerza.</b> Con menos del 70 % hay riesgo de catabolismo y no subes Fuerza.</p>
+ <p>🥑 <b>Grasas = balance.</b> Participan en hormonas y salud, pero demasiada chatarra o más del 130 % de las kcal causa pesadez.</p>
+ <p>Cada día: <b>1)</b> arma tu dieta (hasta 4 platos), <b>2)</b> entrena o descansa, <b>3)</b> resuelve los dilemas que aparezcan. El día 15 peleas por turnos contra Braulio.</p>
+ <h3>Controles</h3>
+ <p class="mu">Entrenar: <b>Espacio</b>, <b>Enter</b>, clic o toque. · Batalla y eventos: teclas <b>1-4</b>. · Silencio: <b>M</b>. · Saltar historia: <b>Esc</b>.</p>
+ <button class="btn-main" id="bk">Entendido</button>`);
+ on('#bk',()=>{sfx('click');back()});
+}
+const SKT=['#f6d2b0','#e0a67a','#c68a5c','#8d5a3a','#5b3a29'],SHT=['#e84a5f','#38BDF8','#A855F7','#4ADE80','#a78bfa','#C084FC','#e2e8f0','#94A3B8'],PAT=['#2a4d8f','#222222','#444b57','#6b2a2a','#1f5a3a','#e2e8f0','#C084FC','#6d28d9'],HAT=['#2b1b10','#111111','#8a5a2b','#d9b24c','#c0392b','#cfd5dc'];
+let preview=0;
+function custom(){
+ if(mode!=='custom'){clearScene();reset();preview=0;setMode('custom')}
+ const sw=(arr,key,label)=>`<div class="cr"><b>${label}</b>${arr.map((c,i)=>`<button class="sw" aria-pressed="${PL[key]===c}" data-k="${key}" data-v="${c}" style="background:${c}" aria-label="${label} opción ${i+1}"></button>`).join('')}</div>`;
+ const op=(l,key,v)=>`<button class="opt" aria-pressed="${PL[key]===v}" data-k="${key}" data-v="${v}">${l}</button>`;
+ panel(`<h2>Crea a tu atleta</h2>
+ ${sw(SKT,'skin','Piel')}${sw(SHT,'shirt','Camisa')}${sw(PAT,'pants','Short')}${sw(HAT,'hair','Cabello')}
+ <div class="cr"><b>Lentes</b>${op('Ninguno','gl',0)}${op('Claros','gl',1)}${op('De sol','gl',2)}</div>
+ <div class="cr"><b>Extras</b>${op('Barba','beard',1)}${op('Gorra','cap',1)}</div>
+ <div class="cr"><b>Vista previa</b>${['Novato','Constante','Atleta','Olímpico'].map((n,i)=>`<button class="opt" aria-pressed="${preview===i}" data-pv="${i}">${n}</button>`).join('')}</div>
+ <p class="mu">Tu apariencia cambiará así conforme mejores Fuerza, Resistencia y Recuperación.</p>
+ <div class="row"><button class="btn-main" id="cgo">▶ Comenzar</button><button id="cbk">Atrás</button></div>`);
+ on('[data-k]',b=>{const k=b.dataset.k;if(k==='beard'||k==='cap')PL[k]=PL[k]?0:1;else PL[k]=k==='gl'?+b.dataset.v:b.dataset.v;sfx('select');custom()});
+ on('[data-pv]',b=>{preview=+b.dataset.pv;const v=[10,35,55,85][preview];S.STR=S.STA=S.REC=v;sfx('select');custom()});
+ on('#cgo',()=>{store.set(LOOK,PL);sfx('click');story()});
+ on('#cbk',()=>{sfx('click');menu()});
+}
+function story(){
+ clearScene();reset();Audio2.stop();setMode('story');
+ ST={t:0,done:{},stp:-1};
+ panel(`<div class="col"><button class="btn-act" id="sk">⏭ Omitir historia</button><span class="mu">También puedes pulsar <kbd>Esc</kbd></span></div>`);
+ on('#sk',endStory);scrollToEl($('stage'));
+}
+function endStory(){if(!ST)return;ST=null;sfx('click');goals()}
+function goals(){
+ clearScene();reset();setMode('goals');Audio2.play('menu');
+ panel(`<h2>Elige tu objetivo</h2><p>Te quedan <b>14 días</b> para prepararte contra <b>Braulio "El Ciclado" Broscience</b>. Tu dieta decide cómo entrenas.</p>
+ ${Object.entries(GOALS).map(([k,g])=>`<button class="blk" data-g="${k}">${g.i} <b>${g.n}</b><small>${g.d}</small><small style="font-family:var(--fm)">${g.k} kcal · P ${g.p} · C ${g.c} · G ${g.f}</small></button>`).join('')}
+ <p class="mu">Las metas son ejemplos del juego, no una recomendación personal.</p>
+ <button id="how">❓ ¿Cómo jugar?</button>`);
+ on('[data-g]',b=>{sfx('click');gkey=b.dataset.g;goal=GOALS[gkey];reset();kitchen()});
+ on('#how',()=>{sfx('click');how(goals)});
+}
+
+/* =====================================================================
+   11. LA COCINA
+   ===================================================================== */
+function evalDiet(list,g=goal){
+ let k=0,p=0,c=0,f=0,j=0;
+ for(const i of list){const a=FOODS[i];k+=a[2];p+=a[3];c+=a[4];f+=a[5];j+=a[6]}
+ const fl={ok:Math.abs(k/g.k-1)<=.15,low:c<g.c*.35,cata:p<g.p*.7,pes:k>g.k*1.3||j>=2};
+ const cl=(a,b)=>Math.max(0,1-Math.abs(a/b-1));
+ let q=.4*cl(k,g.k)+.25*cl(p,g.p)+.25*cl(c,g.c)+.1*cl(f,g.f);
+ if(fl.ok)q+=.1;if(fl.low)q-=.15;if(fl.cata)q-=.1;if(fl.pes)q-=.15;
+ return{k,p,c,f,j,fl,q:clamp(q,.05,1)};
+}
+/* 12 alimentos del día con al menos 2 combinaciones válidas */
+const comboCache=new Map();
+function validCombos(){
+ if(comboCache.has(goal))return comboCache.get(goal);
+ const g=goal,out=[],cur=[];
+ const rec=(s,k,p,c)=>{
+  if(cur.length&&Math.abs(k/g.k-1)<=.15&&p>=g.p*.85&&c>=g.c*.6)out.push(cur.slice());
+  if(cur.length===4)return;
+  for(let i=s;i<FOODS.length;i++){const a=FOODS[i];if(a[6]||k+a[2]>g.k*1.15)continue;cur.push(i);rec(i+1,k+a[2],p+a[3],c+a[4]);cur.pop()}
+ };
+ rec(0,0,0,0);comboCache.set(g,out);return out;
+}
+function pickFoods(){
+ const V=validCombos(),s=new Set();
+ if(V.length){const a=pick(V);a.forEach(i=>s.add(i));let b=null;for(let n=0;n<80;n++){b=pick(V);if(b.filter(i=>!a.includes(i)).length>=2)break}b.forEach(i=>s.add(i))}
+ /* siempre algunas tentaciones ultraprocesadas */
+ const junk=shuffle(FOODS.map((_,i)=>i).filter(i=>FOODS[i][6]));
+ for(const i of junk.slice(0,2))if(s.size<12)s.add(i);
+ for(const i of shuffle(FOODS.map((_,i)=>i))){if(s.size>=12)break;s.add(i)}
+ return shuffle([...s]);
+}
+const zoneWidth=q=>q>.75?'amplia':q>.5?'media':'angosta';
+function dietLabels(d){
+ const g=goal,L=[],add=(c,t)=>L.push([c,t]);
+ if(d.k>g.k*1.3)add('bad','🔥 Exceso calórico');else if(d.k>g.k*1.15)add('warn','Por encima de tus kcal');
+ else if(d.fl.ok)add('ok','✅ Energía en rango');else if(d.k<g.k*.6)add('bad','Muy pocas calorías');else add('warn','Faltan calorías');
+ if(d.fl.low)add('bad','🔋 Glucógeno bajo: sin energía');else if(d.c>g.c*1.2)add('warn','Carbos de sobra');else if(d.c>=g.c*.8)add('ok','⚡ Buen aporte de glucógeno');else add('warn','Glucógeno justo');
+ if(d.fl.cata)add('bad','⚠️ Riesgo de catabolismo');else if(d.p>=g.p*.85)add('ok','💪 Proteína para reparar');else add('warn','Proteína algo corta');
+ if(d.f>g.f*1.4)add('warn','🥑 Grasas en exceso');else if(d.f<g.f*.4)add('warn','Grasas muy bajas');
+ if(d.j>=2)add('bad',`🍟 ${d.j} ultraprocesados: pesadez`);else if(d.j)add('warn','🍟 1 ultraprocesado: −salud');
+ return L;
+}
+function kitchen(){
+ clearTimers();act=null;tm=null;sel=[];setMode('kitchen');Audio2.play('gym');save();spawnCast();
+ const g=goal,tab=pickFoods();
+ const M=[['Kcal','k',g.k,'',.85,1.15],['Proteína','p',g.p,' g',.85,1.2],['Carbos','c',g.c,' g',.8,1.2],['Grasas','f',g.f,' g',.7,1.3]];
+ panel(`<h2>🍳 La Cocina · Día ${day}</h2><p class="mu">Elige hasta 4 platos. La franja verde de cada barra es tu zona objetivo.</p>
+ <div id="meters">${M.map(([n,k,goalv,u,lo,hi])=>`<div class="meter"><b>${n}</b><div class="track"><div class="zone" style="left:${lo/1.6*100}%;width:${(hi-lo)/1.6*100}%"></div><div class="fill" id="m-${k}"></div></div><output id="o-${k}"></output></div>`).join('')}
+  <div id="plate"></div><div id="labels"></div></div>
+ <div id="fg">${tab.map(i=>{const f=FOODS[i];return`<button class="fd" data-i="${i}" aria-pressed="false">${f[6]?'<span class="up">ULTRA</span>':''}<span class="em">${f[0]}</span><b>${f[1]}</b><span class="mac"><b>${f[2]}</b> kcal · P${f[3]} C${f[4]} G${f[5]}</span><span class="ds">${f[7]}</span></button>`}).join('')}</div>
+ <div class="row"><button class="btn-main" id="go" disabled>🍽️ Cocinar y confirmar dieta</button><button id="clr">Vaciar plato</button></div>`);
+ const upd=()=>{
+  const d=evalDiet(sel);
+  for(const[,k,gv,u,lo,hi]of M){
+   const r=d[k]/gv,el=$('m-'+k);el.style.width=Math.min(100,r/1.6*100)+'%';
+   el.style.background=r>hi+.15?'var(--bad)':r>hi?'var(--act)':r>=lo?'var(--ok2)':'var(--info)';
+   $('o-'+k).textContent=`${d[k]}/${gv}${u}`;
+  }
+  $('plate').innerHTML=[0,1,2,3].map(n=>sel[n]===undefined?'<span class="slot">+</span>':`<button class="slot" data-rm="${sel[n]}" title="Quitar ${FOODS[sel[n]][1]}" aria-label="Quitar ${FOODS[sel[n]][1]}">${FOODS[sel[n]][0]}</button>`).join('');
+  $('labels').innerHTML=sel.length?dietLabels(d).map(([c,t])=>`<span class="tag t-${c}">${t}</span>`).join('')+`<span class="tag t-info">Calidad ${Math.round(d.q*100)}% → zona verde ${zoneWidth(d.q)}</span>`:'<span class="mu">Toca los alimentos para armar tu plato…</span>';
+  on('[data-rm]',b=>toggle(+b.dataset.rm));
+  document.querySelectorAll('.fd').forEach(b=>b.setAttribute('aria-pressed',sel.includes(+b.dataset.i)));
+  $('go').disabled=!sel.length;
+ };
+ const toggle=i=>{
+  const p=sel.indexOf(i);
+  if(p>=0){sel.splice(p,1);sfx('click')}
+  else if(sel.length<4){sel.push(i);sfx('select')}
+  else{sfx('miss');floatText('MÁXIMO 4 PLATOS','#A855F7',320,170,13)}
+  upd();
+ };
+ on('.fd',b=>toggle(+b.dataset.i));
+ on('#clr',()=>{sel=[];sfx('click');upd()});
+ on('#go',()=>cook());
+ upd();scrollToEl($('stage'));
+}
+function clearTimers(){cancelTimers()}
+function cook(){
+ if(mode!=='kitchen'||!sel.length)return;
+ const g=goal,d=D=evalDiet(sel),f=d.fl;sfx('good');
+ if(d.c>=g.c*.6)T.c++;if(d.p>=g.p*.85)T.p++;if(d.j)T.j++;if(f.ok)T.ok++;
+ hist[day-1]={k:d.k/g.k,p:d.p/g.p,c:d.c/g.c,f:d.f/g.f,q:d.q,j:d.j,act:null,perf:0};
+ setMode('gym');
+ S.ENG=clamp(Math.round(S.ENG*.4+(25+75*Math.min(1,d.c/g.c))*.6),0,100);if(f.low)S.ENG=Math.max(5,S.ENG-12);
+ if(d.q>.7&&!d.j)gain('HP',3);else if(d.j||f.pes)gain('HP',-4);
+ if(f.low)gain('HP',-2);if(!f.cata&&d.p>=g.p*.85)gain('REC',2);if(f.pes)gain('STA',-2);
+ sel.forEach((i,n)=>later(()=>{floatText(FOODS[i][0],'#fff',270+n*34,230,22)},n*90));
+ gym();
+}
+
+/* =====================================================================
+   12. GIMNASIO Y MINIJUEGOS
+   ===================================================================== */
+function gym(){
+ setMode('gym');const f=D.fl,t=(c,s)=>`<span class="tag t-${c}">${s}</span>`;
+ panel(`<h2>🏋️ El Gimnasio</h2>
+ <div>${f.ok?t('ok','✅ Kcal en rango: +25 % de ganancias'):t('warn','Kcal fuera de ±15 %: sin bono')}${f.low?t('bad','🔋 Glucógeno bajo: ganancias a la mitad'):''}${f.cata?t('bad','⚠️ Catabolismo: hoy no sube la Fuerza'):''}${f.pes?t('bad','🥴 Pesadez: el cardio rinde la mitad'):''}${S.ENG<35?t('warn','😓 Poca energía: −30 % de ganancias'):''}</div>
+ <p>Calidad de tu dieta: <b>${Math.round(D.q*100)} %</b> → zona de acierto ${zoneWidth(D.q)}.</p>
+ <button class="blk btn-act" data-t="bench">🏋️ Fuerza: Press de Banca <kbd>1</kbd><small>Detén el marcador en la zona verde. Sube Fuerza.</small></button>
+ <button class="blk btn-act" data-t="rope">🪢 Cardio: Cuerda al ritmo <kbd>2</kbd><small>Salta justo cuando la nota llegue al aro. Sube Resistencia.</small></button>
+ <button class="blk" data-t="rest">😴 Descanso activo <kbd>3</kbd><small>Estiramientos y sueño: +Recuperación, +Salud, +Energía.</small></button>`);
+ on('[data-t]',b=>{sfx('click');train(b.dataset.t)});
+ scrollToEl($('stage'));
+}
+function train(k){
+ if(mode!=='gym')return;
+ act=k;
+ if(k==='rest'){
+  T.rest++;setMode('rest');hist[day-1]&&(hist[day-1].act='rest');
+  panel('<h2>😴 Descansando…</h2><p>Estiramientos, hidratación y buen sueño. El músculo se adapta mientras te recuperas.</p>');
+  later(()=>{gain('REC',6);gain('HP',3);gain('ENG',10);sfx('heal');later(endDay,1200)},1500);return;
+ }
+ setMode('train');
+ const q=D.q,bench=k==='bench';
+ tm={k,r:0,hits:0,perf:0,combo:0,maxCombo:0,pts:0,bad:0,lock:0,wait:1.2,fb:'',fbT:0,fbC:'#fff',results:[],anim:0,
+  /* banca */ pos:0,dir:1,w:.12+q*.2,z:.4,speed:1.35-q*.65,
+  /* cuerda */ note:null,win:22+q*24,vel:300-q*70};
+ tm.base=tm.speed;
+ moveZone();
+ panel(`<h2>${bench?'🏋️ Press de Banca':'🪢 Cuerda al ritmo'}</h2>
+ <p>${bench?'Pulsa cuando el marcador blanco esté en la <b style="color:var(--ok2)">zona verde</b>. El centro dorado es <b style="color:var(--act)">PERFECTO</b>.':'Salta cuando la nota entre en el <b style="color:var(--ok2)">aro</b>. Entre más centrada, mejor: <b style="color:var(--act)">PERFECTO</b>.'}</p>
+ <p class="mu">${NR} repeticiones. Encadena aciertos: 3 seguidos ×1.2, 5 seguidos ×1.4. Cada fallo cuesta 2 de energía extra.</p>
+ <button class="btn-act blk big" id="now" style="text-align:center;min-height:84px">¡AHORA! <kbd>Espacio</kbd></button>`);
+ $('now').addEventListener('pointerdown',e=>{e.preventDefault();press()});
+ /* activación con lectores de pantalla (clic sin puntero) */
+ $('now').addEventListener('click',e=>{if(e.detail===0)press()});
+ scrollToEl($('stage'));
+}
+function moveZone(){tm.z=.06+Math.random()*(.88-tm.w)}
+function spawnNote(){tm.note={x:640+rnd(120)}}
+function press(){
+ if(paused||!tm||tm.lock||tm.wait>0)return;
+ let dist,half;
+ if(tm.k==='bench'){dist=Math.abs(tm.pos-(tm.z+tm.w/2));half=tm.w/2+.008}
+ else{if(!tm.note||tm.note.x-170>150)return;dist=Math.abs(tm.note.x-170);half=tm.win}
+ judge(dist<=half*.36?2:dist<=half?1:0);
+}
+function judge(res){
+ const bench=tm.k==='bench';
+ if(res){
+  tm.combo++;tm.hits++;tm.maxCombo=Math.max(tm.maxCombo,tm.combo);
+  const mult=tm.combo>=5?1.4:tm.combo>=3?1.2:1;
+  tm.pts+=(res===2?1:.7)*mult;tm.anim=.5;
+  res===2?(tm.perf++,T.perf++):T.good++;
+  tm.fb=(res===2?'¡PERFECTO!':'BIEN')+(mult>1?` ×${mult}`:'');tm.fbC=res===2?'#A855F7':'#4ADE80';
+  sfx(res===2?'perfect':'good');sfx('lift');
+  const x=bench?80+tm.pos*480:170;
+  burst(x,332,res===2?['#A855F7','#E9D5FF','#fff']:['#4ADE80','#22C55E','#fff'],res===2?34:16,res===2?280:190);
+  stars.push({x,y:332,life:.22,r:res===2?34:20});
+  if(res===2){if(!CALM)shake=7;doFlash('168,85,247',.18)}else if(!CALM)shake=3;
+ }else{
+  tm.combo=0;tm.bad++;T.fail++;tm.fb='FALLO';tm.fbC='#EF4444';sfx('miss');if(!CALM)shake=6;doFlash('239,68,68',.22);
+ }
+ tm.results.push(res);tm.fbT=.9;tm.r++;
+ if(bench){tm.speed=tm.base*(1+.1*Math.min(tm.hits,5)+.05*Math.max(0,tm.hits-5));moveZone();tm.wait=.22}
+ else{tm.note=null;tm.wait=Math.max(.12,.5-tm.hits*.045)+Math.random()*.25}
+ if(tm.r>=NR){tm.lock=1;later(finishTraining,1100)}
+}
+function updateTraining(dt){
+ if(!tm)return;
+ tm.fbT=Math.max(0,tm.fbT-dt);tm.anim=Math.max(0,tm.anim-dt);
+ if(tm.lock)return;
+ if(tm.k==='bench'){
+  if(tm.r===0&&tm.wait>0){tm.wait-=dt;return}
+  tm.wait=Math.max(0,tm.wait-dt);
+  tm.pos+=tm.speed*tm.dir*dt;
+  if(tm.pos<=0){tm.pos=-tm.pos;tm.dir=1}if(tm.pos>=1){tm.pos=2-tm.pos;tm.dir=-1}
+ }else{
+  if(tm.wait>0){tm.wait-=dt;if(tm.wait<=0)spawnNote();return}
+  if(!tm.note)spawnNote();
+  tm.note.x-=tm.vel*(1+.06*Math.min(tm.hits,6))*dt;
+  if(tm.note.x<170-tm.win)judge(0);
+ }
+}
+function finishTraining(){
+ if(!tm)return;
+ const f=D.fl,k=tm.k,bad=tm.bad,e=(f.low?.5:1)*(S.ENG<35?.7:1)*(f.ok?1.25:1);
+ const amount=Math.round(e*(tm.pts/NR)*9.6*10)/10;
+ const sum={perf:tm.perf,good:tm.hits-tm.perf,bad,combo:tm.maxCombo};
+ tm=null;act=null;setMode('gym');
+ if(hist[day-1]){hist[day-1].act=k;hist[day-1].perf=sum.perf}
+ let result;
+ if(k==='bench'){
+  if(f.cata){floatText('CATABOLISMO: +0 FUERZA','#EF4444',320,130,12);result='Sin proteína suficiente no hubo ganancia de Fuerza.'}
+  else{gain('STR',amount);result=`Fuerza +${Math.round(amount)}`}
+ }else{const v=amount*(f.pes?.5:1);gain('STA',v);result=`Resistencia +${Math.round(v)}`}
+ gain('ENG',-12-2*bad);sfx('up');
+ panel(`<h2>Serie terminada</h2>
+ <div class="kpis"><div class="kpi"><b style="color:var(--act)">${sum.perf}</b><span>Perfectos</span></div><div class="kpi"><b style="color:var(--ok2)">${sum.good}</b><span>Bien</span></div><div class="kpi"><b style="color:var(--bad)">${sum.bad}</b><span>Fallos</span></div><div class="kpi"><b style="color:var(--info)">${sum.combo}</b><span>Mejor racha</span></div></div>
+ <p style="margin-top:10px"><b>${result}</b> · Energía −${12+2*bad}</p>
+ <button class="btn-main" id="nx">Continuar</button>`);
+ on('#nx',()=>{sfx('click');endDay()});
+}
+function endDay(){
+ act=null;const i=EVENT_DAYS.indexOf(day);
+ if(i>=0)showEvent(EVENTS[evq[i]]);else nextDay();
+}
+function nextDay(){day++;if(day>14)intro();else kitchen()}
+function showEvent(ev){
+ setMode('event');sfx('alert');
+ const opts=shuffle(ev.o.slice());
+ panel(`<h2>${ev.t}</h2><p>${ev.q}</p>${opts.map((o,j)=>`<button class="blk" data-o="${j}">${o[0]} <kbd>${j+1}</kbd></button>`).join('')}`);
+ let done=false;
+ on('[data-o]',b=>{
+  if(done)return;done=true;
+  const o=opts[+b.dataset.o];T.evn++;if(o[2])T.ev++;sfx(o[2]?'up':'miss');
+  const fx=Object.entries(o[1]).map(([k,v])=>`<span class="tag t-${v>0?'ok':'bad'}">${v>0?'+':''}${v} ${STATS.find(a=>a[0]===k)[1]}</span>`).join('');
+  for(const k in o[1])gain(k,o[1][k]);
+  panel(`<h2 style="color:${o[2]?'var(--ok2)':'var(--bad)'}">${o[2]?'✅ Buena decisión':'❌ Mala decisión'}</h2><p><b>${o[0]}</b></p><p>${o[3]}</p><div>${fx}</div><button class="btn-main" id="c">Continuar</button>`);
+  on('#c',()=>{sfx('click');nextDay()});
+ });
+ scrollToEl($('panel'));
+}
+
+/* =====================================================================
+   13. BATALLA FINAL
+   ===================================================================== */
+function intro(){
+ clearTimers();act=null;tm=null;B=null;day=15;setMode('intro');Audio2.play('battle');save();
+ panel(`<h2>🥊 Día 15: ¡Batalla final!</h2>
+ <p>Braulio "El Ciclado" pega durísimo, pero tiene <b>poca resistencia</b>: odia los carbohidratos y el cardio. Quítale el aire y golpea con inteligencia.</p>
+ <p>Golpe de Glucógeno: ${T.c>=8?'<span class="tag t-ok">⚡ Desbloqueado</span>':`<span class="tag t-bad">🔒 Necesitabas 8 días con buenos carbos (tienes ${T.c})</span>`}</p>
+ <button class="btn-act big" id="fi">¡PELEAR!</button>`);
+ on('#fi',()=>startBattle());
+ scrollToEl($('stage'));
+}
+function startBattle(){
+ clearTimers();parts=[];floats=[];
+ const pe=Math.round(40+S.ENG*.6),ph=Math.round(90+S.HP*1.1);
+ B={ph,hp:ph,pem:pe,pe,bh:400,bhm:400,be:250,bem:250,busy:false,over:false,turn:1,pa:0,ba:0,pp:'guard',bp:'guard',pk:0,bk:0,cheer:1,say:'¡Ven, perdedor!',sayT:2,show:{hp:ph,bh:325},log:['🔔 ¡Suena la campana!']};
+ setMode('battle');Audio2.play('battle');sfx('bell');battlePanel();scrollToEl($('stage'));
+}
+function battlePanel(){
+ panel(`<h2>${B.over?'Fin del combate':B.busy?'Turno de Braulio…':'Tu turno'}</h2><div id="skills">${SKILLS.map((s,i)=>{
+  const locked=i===3&&T.c<8,noE=B.pe<s[2];
+  return`<button class="blk${i===3&&!locked?' btn-act':''}" data-s="${i}" ${B.busy||B.over||locked||noE?'disabled':''}><b>${locked?'🔒 ':''}${s[0]}</b> <kbd>${i+1}</kbd><small>${s[1]}</small><small><b>${s[2]} EN</b>${noE&&!locked?' · sin energía suficiente':''}</small></button>`}).join('')}</div>
+ <div id="log">${B.log.slice(-4).map(l=>`<div>${l}</div>`).join('')}</div>`);
+ on('[data-s]',b=>useSkill(+b.dataset.s));
+}
+function useSkill(i){
+ if(!B||B.busy||B.over)return;
+ const s=SKILLS[i];if(B.pe<s[2]||(i===3&&T.c<8))return;
+ B.busy=true;B.pe-=s[2];let m,d=0;
+ if(i===0){d=Math.round(10+S.STR*.6+Math.random()*4);m=`Repetición Pesada: ${d} de daño`}
+ if(i===1){d=Math.round(6+(S.STA+S.ENG)*.28+Math.random()*3);B.be=Math.max(0,B.be-25);m=`Sprint Metabólico: ${d} de daño y Braulio pierde aire`}
+ if(i===3){d=Math.round(40+S.ENG*.5);m=`¡GOLPE DE GLUCÓGENO! ${d} de daño`}
+ if(i===2){
+  const heal=Math.min(B.ph-B.hp,Math.round(10+S.HP*.3));B.hp+=heal;m=`Respiración y Técnica: recuperas ${heal} HP`;
+  B.pp='stretch';B.pa=.8;sfx('heal');floatText('+'+heal+' HP','#38BDF8',190,150,15);burst(190,240,['#38BDF8','#7dd3fc','#fff'],26,130);
+ }else{
+  B.pp='punch';B.pa=.55;
+  later(()=>{
+   B.bh=Math.max(0,B.bh-d);B.bp='hit';B.ba=.55;B.cheer=1;B.bk=i===3?50:22;
+   impact(430,220,d,i===3?'#38BDF8':'#A855F7');sfx(i===3?'heavy':'hit');
+   if(i===3){doFlash('56,189,248',.45);floatText('¡GLUCÓGENO!','#38BDF8',320,110,22)}
+   floatText('-'+d,'#A855F7',450,150,i===3?28:20);
+  },180);
+ }
+ B.log.push(m);battlePanel();
+ later(()=>{if(B.bh<=0)return finishBattle(true);bossTurn()},1150);
+}
+function bossTurn(){
+ const ex=B.be<=0,d=Math.round((13+Math.random()*7)*(ex?.45:1)*(1-S.REC/220)*2);
+ B.be=Math.max(0,B.be-18);
+ if(ex&&Math.random()<.35){
+  B.log.push('Braulio está sin aire y pierde el turno 😮‍💨');B.say='*jadeo* …un segundo…';B.sayT=1.6;floatText('¡SIN AIRE!','#38BDF8',450,150,14);endTurn(500);
+ }else{
+  if(!ex&&Math.random()<.4){B.say=pick(BRO_QUIPS);B.sayT=1.7}
+  B.bp='punch';B.ba=.55;
+  later(()=>{
+   B.hp=Math.max(0,B.hp-d);B.pp='hit';B.pa=.5;B.pk=18;impact(200,225,d,'#EF4444');sfx('hurt');doFlash('239,68,68',.3);
+   floatText('-'+d,'#EF4444',190,150,20);B.log.push(`Braulio te golpea: −${d} HP${ex?' (débil, sin energía)':''}`);endTurn(450);
+  },200);
+ }
+}
+function endTurn(ms){
+ B.pe=Math.min(B.pem,B.pe+8);battlePanel();
+ later(()=>{if(B.hp<=0)return finishBattle(false);B.busy=false;B.turn++;battlePanel()},ms);
+}
+function finishBattle(win){
+ B.over=true;B.busy=true;Audio2.stop();store.del(KEY);
+ B.say=win?'No… ¡la ciencia!':'¡JA! ¡Broscience gana!';B.sayT=9;
+ sfx('bell');battlePanel();
+ later(()=>{sfx(win?'win':'lose');if(win)confettiBurst()},500);
+ later(()=>summary(win),2800);
+}
+
+/* =====================================================================
+   14. RESUMEN FINAL
+   ===================================================================== */
+function summary(win){
+ setMode('summary');const g=goal,H=hist.filter(Boolean),n=H.length||1;
+ const avg=k=>Math.round(H.reduce((a,h)=>a+h[k],0)/n*100);
+ const evR=T.evn?T.ev/T.evn:0;
+ const score=Math.round((T.c/14*.2+T.p/14*.2+T.ok/14*.2+(1-T.j/14)*.15+evR*.15+Math.min(1,T.rest/3)*.1)*100);
+ const grade=score>=85?['🥇','Hábitos de campeón']:score>=65?['🥈','Buen camino']:score>=45?['🥉','En construcción']:['🧩','Toca replantear el plan'];
+ const tips=[],tip=(good,t)=>tips.push([good,t]);
+ LAST={win,score,grade:grade[1]};const rep=buildReport(),repTxt=reportText(rep),repJson=JSON.stringify(rep,null,2);
+ tip(T.ok>=9,T.ok>=9?`<b>Balance calórico:</b> en rango ${T.ok}/14 días. Buen control de porciones.`:`<b>Balance calórico:</b> solo ${T.ok}/14 días dentro de ±15 % de ${g.k} kcal. Planea el plato antes: una fuente de proteína, una de carbohidrato y verduras o fruta.`);
+ tip(T.p>=10,T.p>=10?`<b>Proteína:</b> meta alcanzada ${T.p}/14 días.`:`<b>Proteína:</b> suficiente solo ${T.p}/14 días. Para quien entrena suele sugerirse 1.4–2.0 g por kg de peso al día, repartidos en 3–5 comidas.`);
+ tip(T.c>=10,T.c>=10?`<b>Carbohidratos:</b> buen nivel ${T.c}/14 días, con glucógeno para rendir.`:`<b>Carbohidratos:</b> suficientes solo ${T.c}/14 días. Con actividad moderada se usan como referencia 5–7 g/kg/día; ajusta según cuánto entrenes (arroz, avena, tortillas, frijol, fruta).`);
+ tip(T.j<=2,T.j<=2?`<b>Ultraprocesados:</b> solo ${T.j} día(s). Tu salud lo agradece.`:`<b>Ultraprocesados:</b> aparecieron en ${T.j} días. No hace falta prohibirlos: cambia el refresco por agua y deja la comida rápida para ocasiones.`);
+ tip(T.rest>=3,T.rest>=3?`<b>Recuperación:</b> descansaste ${T.rest} días.`:`<b>Recuperación:</b> solo ${T.rest} día(s) de descanso. Programa 1–2 por semana y duerme 7–9 h (8–10 h si eres adolescente).`);
+ tip(evR>=.7,evR>=.7?`<b>Decisiones:</b> ${T.ev}/${T.evn} dilemas bien resueltos. Buen filtro contra mitos.`:`<b>Decisiones:</b> ${T.ev}/${T.evn} dilemas bien resueltos. Antes de creer una promesa, pregunta: ¿qué evidencia hay?, ¿quién gana si la compro?`);
+ if(T.c<8)tip(false,'<b>Para la revancha:</b> consigue al menos 8 días con carbohidratos suficientes y desbloquearás el Golpe de Glucógeno.');
+ tips.sort((a,b)=>a[0]-b[0]);
+ const days=[...Array(14).keys()];
+ const row=(label,fn)=>`<span>${label}</span>`+days.map(i=>{const h=hist[i];if(!h)return`<i title="Día ${i+1}: sin registro"></i>`;const[c,s,t]=fn(h);return`<i class="${c}" title="Día ${i+1}: ${t}">${s}</i>`}).join('');
+ const pct=v=>Math.round(v*100)+' %';
+ const lvl=(v,lo,hi)=>v>=lo&&v<=hi?['g','✓']:v<lo*.8||v>hi*1.2?['r',v<lo?'↓':'↑']:['w',v<lo?'↓':'↑'];
+ const actNames={bench:['w','F','Fuerza'],rope:['g','C','Cardio'],rest:['b','D','Descanso']};
+ panel(`<h2 style="color:${win?'var(--ok2)':'var(--bad)'}">${win?'🏆 ¡VICTORIA!':'💀 Derrota'}</h2>
+ <p>${win?'Derrotaste a Braulio: la ciencia le ganó al broscience.':'Braulio resistió esta vez. Tus hábitos tienen la respuesta para la revancha.'}</p>
+ <div class="kpis">
+  <div class="kpi"><b>${grade[0]} ${score}</b><span>${grade[1]} (de 100)</span></div>
+  <div class="kpi"><b style="color:var(--act)">${Math.round(S.STR)}</b><span>Fuerza (inicio 10)</span></div>
+  <div class="kpi"><b style="color:var(--ok2)">${Math.round(S.STA)}</b><span>Resistencia (inicio 10)</span></div>
+  <div class="kpi"><b style="color:var(--info)">${Math.round(S.REC)}</b><span>Recuperación (inicio 10)</span></div>
+  <div class="kpi"><b>${Math.round(S.HP)}</b><span>Salud metabólica</span></div>
+  <div class="kpi"><b>${T.perf}</b><span>Repeticiones perfectas</span></div>
+ </div>
+ ${H.length?`<h3>Tus 14 días</h3>
+ <div class="heat"><span></span>${days.map(i=>`<span style="text-align:center">${i+1}</span>`).join('')}
+ ${row('Calorías',h=>[...lvl(h.k,.85,1.15),pct(h.k)+' de la meta'])}
+ ${row('Proteína',h=>[...lvl(h.p,.85,1.5),pct(h.p)+' de la meta'])}
+ ${row('Carbos',h=>[...lvl(h.c,.6,1.3),pct(h.c)+' de la meta'])}
+ ${row('Ultraproc.',h=>[h.j?(h.j>1?'r':'w'):'g',h.j||'✓',h.j+' alimento(s)'])}
+ ${row('Actividad',h=>actNames[h.act]||['','','sin registro'])}</div>
+ <p class="mu">✓ en rango · ↓ por debajo · ↑ por encima · F fuerza · C cardio · D descanso</p>
+ <h3>Calorías diarias vs. meta</h3>
+ <div class="chart" role="img" aria-label="Calorías de cada día como porcentaje de la meta">${days.map(i=>{const h=hist[i],v=h?h.k:0;return`<div title="Día ${i+1}: ${h?pct(v):'sin registro'}" style="height:${Math.min(100,v/1.6*100)}%;background:${v>=.85&&v<=1.15?'var(--ok2)':v>1.3?'var(--bad)':v>1.15?'var(--act)':'var(--info)'}"></div>`}).join('')}<span class="goal" style="bottom:calc(6px + ${(1/1.6)*98}px)"></span></div>
+ <p class="mu">Promedio: calorías ${avg('k')} % · proteína ${avg('p')} % · carbos ${avg('c')} % · grasas ${avg('f')} % de la meta.</p>`:'<p class="mu">Esta partida se guardó con una versión anterior: no hay detalle diario.</p>'}
+ <h3>Consejos para tu vida real</h3>
+ ${tips.map(([good,t])=>`<div class="tip${good?' g':''}">${good?'✅':'🎯'} ${t}</div>`).join('')}
+ <p class="mu">Referencias generales para personas adultas sanas y activas: ${SOURCES.map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${n}</a>`).join(' · ')}. Este juego es educativo y no sustituye a un nutriólogo o médico.</p>
+ <h3>Exportar resumen</h3><div class="row" style="margin-top:0"><button class="btn-main" id="xcp">📋 Copiar texto</button><button id="xcj">{ } Copiar JSON</button><button id="xdl">⬇ Descargar .json</button></div><p class="mu" id="xst" role="status" style="min-height:20px"></p><details><summary class="mu">Vista previa del resumen</summary><pre class="rep">${esc(repTxt)}</pre></details>
+ <div class="row"><button class="btn-main" id="ag">🔁 Jugar de nuevo</button>${win?'':'<button class="btn-act" id="rv">🥊 Revancha</button>'}</div>`);
+ on('#ag',()=>{sfx('click');menu()});
+ on('#xcp',()=>{sfx('click');copyText(repTxt,'Resumen copiado ✔')});
+ on('#xcj',()=>{sfx('click');copyText(repJson,'JSON copiado ✔')});
+ on('#xdl',()=>{sfx('click');const d=new Date(),p=n=>String(n).padStart(2,'0');download('macroclash-resumen-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes())+'.json','application/json',repJson);xsay('Archivo descargado ✔')});
+ on('#rv',()=>{sfx('click');startBattle()});
+ scrollToEl($('panel'));
+}
+
+/* =====================================================================
+   15. DIBUJO DE CADA ESCENA
+   ===================================================================== */
+function drawMenu(t){
+ raysBg(t);
+ shadow(110,300,70);hero(110,300,{t,pose:'flex',m:.85,tier:3,sweat:0,slump:0,mouth:'smile',eyes:'normal'},3,{noAura:true});
+ shadow(530,300,80);person(brau({t,pose:'flex',d:-1}));stamp(530,300,3);
+ const b=Math.sin(t*2.5)*4;
+ text('MACRO',320,92+b,46,'#4ADE80');text('CLASH',320,150-b,46,'#A855F7');
+ text('VS',320,246,22,'#EF4444');
+ text('Camino al Olimpo del Gym',320,334,13,'#F1F5F9');
+}
+function drawCustom(t){
+ raysBg(t);shadow(320,326,90);
+ hero(320,326,{t,pose:preview>=2?'flex':'stand',sweat:0},4);
+ text(['NOVATO','CONSTANTE','ATLETA','OLÍMPICO'][preview],320,40,16,'#38BDF8');
+}
+const KID=()=>heroLook({m:.05,tier:0,slump:0,sweat:0,band:0,wraps:0,mouth:'neutral',eyes:'normal'});
+function drawStory(dt){
+ ST.t+=dt;const t=ST.t;
+ if(t>=22){endStory();return}
+ const once=(k,fn)=>{if(!ST.done[k]){ST.done[k]=1;fn()}};
+ if(t>=15&&t<20){
+  raysBg(t);shadow(320,340,90);
+  person({...KID(),t,d:1,pose:'fist',flyer:1,eyes:t>16?'angry':'wide',mouth:t>16?'grit':'neutral',lookUp:t>16});stamp(320,340,4);
+  for(let i=0;i<6;i++){const k=(t*2+i*.4)%1,x=[130,500,180,470,110,540][i],y=[90,110,190,60,250,220][i];X.globalAlpha=1-k;R(i%2?'#A855F7':'#fff',x-8*k,y,16*k+2,3);R(i%2?'#A855F7':'#fff',x,y-8*k,3,16*k+2)}X.globalAlpha=1;
+  if(t>16.3)text('¡VOY A ENTRENAR!',320,46,18,'#A855F7');
+ }else{
+  gymScene(t);
+  const push=t<6.5?0:t<7.9?1:0,bx=t<6.5?476:t<7.1?476-40*(t-6.5)/.6:t<8.6?436:t<9.4?436+40*(t-8.6)/.8:476;
+  shadow(bx,306,42);person(brau({t,d:-1,pose:push&&t>6.9?'punch':(t<5.8||t>9.6)?'curl':'watch',ph:t*4}));stamp(bx,306,2.2);
+  if(t<7.1){
+   const x=t<.4?-30:Math.min(356,-30+386*(t-.4)/3.2),walking=t>.4&&x<356;
+   shadow(x,304,24);person({...KID(),t,d:1,pose:walking?'walk':'stand',ph:x*.14});stamp(x,304,2);
+   if(walking){const s=(t*3.4)|0;if(s!==ST.stp){ST.stp=s;sfx('step')}}
+  }else{
+   const u=E01(7.1,8.1,t),x=356-132*u,y=304-Math.sin(u*Math.PI)*60;
+   shadow(x,304,52);lying({...KID(),t,dizzy:u>=1});stamp(x,y,2);
+  }
+  if(t>=8.3){const u=E01(8.3,9.5,t),fx=u<1?192+44*Math.sin(u*9)*(1-u):176,fy=u<1?100+198*u:298;box(X,'#f6ecd0',fx,fy,u<1?18:28,u<1?14:8);R('#EF4444',fx,fy,u<1?18:28,3)}
+  if(t>=3.9&&t<6.5)bubble('Disculpa, ¿me explicas cómo se usa esta máquina?',356,180,230);
+  if(t>=7.1&&t<10.2)bubble('¡Largo, perdedor!',bx,160);
+  if(t>=.9&&t<3.8)caption('01/02/2026 · Tu primer día en el gimnasio');
+  if(t>=7.1)once('push',()=>{sfx('hurt');impact(366,230,40,'#EF4444')});
+  if(t>=8.1)once('land',()=>{sfx('hit');burst(224,300,['#94A3B8','#64748b'],18,120)});
+  if(t>=10.7){
+   X.fillStyle=`rgba(5,7,11,${.84*E01(10.7,11.3,t)})`;X.fillRect(0,0,640,360);
+   if(t>=11){once('fl',()=>sfx('alert'));const k=E01(11,11.7,t),e=1+2.7*Math.pow(k-1,3)+1.7*Math.pow(k-1,2);flyer(Math.max(.05,e),(1-k)*-.5+Math.sin(t*2)*.015)}
+  }
+ }
+ if(t>=15)once('up',()=>{sfx('up');doFlash('255,255,255',.8)});
+ let a=t<.8?1-t/.8:t>=20.5?E01(20.5,21.8,t):0;if(a>0){X.fillStyle=`rgba(0,0,0,${a})`;X.fillRect(0,0,640,360)}
+}
+function caption(s){X.fillStyle='rgba(5,7,11,.82)';X.fillRect(0,320,640,40);text(s,320,345,11,'#F1F5F9')}
+function flyer(k,rot){
+ X.save();X.translate(320,182);X.rotate(rot);X.scale(k,k);
+ R('#07090d',-124,-166,248,332);R('#f6ecd0',-120,-162,240,324);R('#b91c1c',-120,-162,240,52);
+ text('COMPETENCIA',0,-128,17,'#fff');text('FITNESS',0,-60,30,'#A855F7');
+ R('#475569',-70,-24,140,8);for(const s of[-1,1]){R('#111827',s*70-8,-44,16,48);R('#111827',s*48-6,-36,12,32)}
+ text('FECHA',0,48,14,'#f1f5f9');text('15/02/2026',0,86,20,'#fff');
+ R('#A855F7',-18,104,36,24);R('#A855F7',-6,128,12,10);R('#5B21B6',-18,138,36,8);R('#A855F7',-28,106,10,12);R('#A855F7',18,106,10,12);
+ X.restore();
+}
+function drawGym(t,dt){
+ if(mode!=='train'&&mode!=='rest')castUpdate(dt);
+ gymScene(t);
+ const people=cast.filter(c=>!(c.walk&&c.wait>0));
+ drawCast(people.filter(c=>c.y<=300).sort((a,b)=>a.y-b.y),t);
+ if(act==='bench'&&tm)drawBench(t);
+ else if(act==='rope'&&tm)drawRope(t);
+ else if(act==='rest')drawRest(t);
+ else{shadow(320,308,34);hero(320,308,{t,pose:S.ENG<20?'tired':'stand'},2.4)}
+ if(mode!=='train')for(const c of people)if(c.say)bubble(c.say,c.x,c.y-128,c.say.length>50?230:190);
+}
+function drawBench(t){
+ aura(320,300,t);
+ const up=tm.anim>0?Math.sin((1-tm.anim/.5)*Math.PI):0,sh=heroLook({t}),skin=sh.skin;
+ shadow(320,292,120);
+ /* soportes y banco */
+ for(const x of[236,276]){box(X,'#64748b',x,176,8,112);box(X,'#94A3B8',x-4,200,16,6)}
+ box(X,'#7f1d1d',228,252,150,12);R('#b91c1c',230,252,146,4);for(const x of[246,356]){box(X,'#475569',x,264,8,24);box(X,'#334155',x-10,286,28,6)}
+ lying({...sh,t,noArm:true});stamp(312,254,2.2);
+ /* brazos y barra */
+ const barY=196-up*34,w=10+sh.m*8;
+ for(const[x,c]of[[282,shade(skin,-.2)],[304,skin]]){X.lineCap='butt';for(const[lw,col]of[[w+4,'#07090d'],[w,c]]){X.strokeStyle=col;X.lineWidth=lw;X.beginPath();X.moveTo(x,236);X.lineTo(x-8+up*8,(236+barY)/2+8*(1-up));X.lineTo(x,barY);X.stroke()}}
+ box(X,'#cbd5e1',214,barY-3,170,6);
+ const r=16+Math.min(14,S.STR*.18);
+ for(const x of[226,372]){box(X,'#111827',x-6,barY-r,12,r*2);R('#A855F7',x-4,barY-r+3,3,r*2-6);box(X,'#334155',x+(x<300?-14:8),barY-r*.65,6,r*1.3)}
+ if(sh.sweat)for(let i=0;i<3;i++)R('#7dd3fc',230+i*12,220+((t*60+i*13)%34),4,6);
+ trainHUD();
+ /* barra de precisión */
+ const x0=80,W=480,y=322;
+ box(X,'#111827',x0,y,W,22);
+ R('#22C55E',x0+tm.z*W,y,tm.w*W,22);R('#4ADE80',x0+tm.z*W,y,tm.w*W,5);
+ R('#A855F7',x0+(tm.z+tm.w*.32)*W,y,tm.w*.36*W,22);R('#E9D5FF',x0+(tm.z+tm.w*.32)*W,y,tm.w*.36*W,5);
+ box(X,'#fff',x0+tm.pos*W-3,y-7,6,36);
+}
+function drawRope(t){
+ const n=tm.note,near=n?Math.max(0,1-Math.abs(n.x-170)/110):0,hop=Math.max(near*30,tm.anim>0?Math.sin((1-tm.anim/.5)*Math.PI)*34:0);
+ const fy=296-hop,phase=n?(n.x-170)/90:t*5,cy=Math.cos(phase);
+ shadow(320,300,40-hop*.4);
+ const rope=()=>{for(const[lw,col]of[[7,'#07090d'],[3,'#A855F7']]){X.strokeStyle=col;X.lineWidth=lw;X.beginPath();X.moveTo(320-52,fy-52);X.quadraticCurveTo(320,fy-52+cy*118,320+52,fy-52);X.stroke()}};
+ if(Math.sin(phase)<0)rope();
+ hero(320,fy,{t,pose:'rope'},2.3);
+ if(Math.sin(phase)>=0)rope();
+ trainHUD();
+ /* carril de ritmo */
+ const y=332;box(X,'#111827',60,y-14,520,28);
+ R('#22C55E55',170-tm.win,y-14,tm.win*2,28);R('#A855F788',170-tm.win*.36,y-14,tm.win*.72,28);
+ X.strokeStyle='#f1f5f9';X.lineWidth=3;X.beginPath();X.arc(170,y,17,0,7);X.stroke();
+ if(n&&n.x<580){disc(X,'#07090d',n.x|0,y,13);disc(X,'#38BDF8',n.x|0,y,11);R('#fff',n.x-5,y-6,4,4)}
+}
+function trainHUD(){
+ X.fillStyle='rgba(5,7,11,.82)';X.fillRect(0,0,640,38);
+ text(`REP ${Math.min(NR,tm.r+1)}/${NR}`,14,25,11,'#F1F5F9','left');
+ for(let i=0;i<NR;i++){const r=tm.results[i];box(X,r===undefined?'#1C2333':r===2?'#A855F7':r===1?'#4ADE80':'#EF4444',172+i*24,13,16,12)}
+ text(`RACHA ${tm.combo}`,626,25,11,tm.combo>=3?'#A855F7':'#94A3B8','right');
+ if(tm.r===0&&tm.wait>0&&tm.k==='bench')text('¡PREPÁRATE!',320,90,22,'#38BDF8');
+ if(tm.fbT>0){const k=Math.min(1,(.9-tm.fbT)*8);text(tm.fb,320,92-(1-k)*14,tm.fbC==='#A855F7'?26:20,tm.fbC)}
+}
+function drawRest(t){
+ shadow(320,306,90);box(X,'#1d4ed8',232,300,176,10);R('#3b82f6',232,300,176,3);
+ lying({...heroLook({sweat:0}),t});stamp(316,300,2.2);
+ X.fillStyle='rgba(15,23,60,.38)';X.fillRect(0,0,640,360);
+ for(let i=0;i<3;i++){const k=(t*.45+i/3)%1;X.globalAlpha=1-k;text(i%2?'z':'Z',262+k*50,252-k*80,12+k*12,'#38BDF8')}X.globalAlpha=1;
+}
+function hudBar(x,y,w,v,m,ghost,color,label,right){
+ box(X,'#1C2333',x,y,w,13);
+ const f=n=>Math.max(0,w*n/m),px=n=>right?x+w-f(n):x;
+ if(ghost!==undefined)R('#F1F5F9',px(ghost),y,f(ghost),13);
+ R(color,px(v),y,f(v),13);R('#ffffff44',px(v),y,f(v),4);
+ for(let i=1;i<10;i++)R('#00000044',x+w*i/10,y,2,13);
+ text(`${label} ${Math.round(v)}`,right?x+w:x,y-5,9,'#F1F5F9',right?'right':'left');
+}
+function drawBattle(t,dt){
+ ringScene(t);
+ if(!B){
+  shadow(190,312,40);hero(190,312,{t,pose:'guard',gloves:'#38BDF8'},2.7);
+  shadow(450,312,58);person(brau({t,d:-1,pose:'flex',gloves:1}));stamp(450,312,3);
+  frontRope();text('TÚ  VS  BRAULIO',320,40,18,'#F1F5F9');return;
+ }
+ B.pa-=dt;B.ba-=dt;B.sayT-=dt;B.cheer=Math.max(0,B.cheer-dt);B.pk*=Math.pow(.01,dt);B.bk*=Math.pow(.01,dt);
+ B.show.hp=Math.max(B.hp,B.show.hp-70*dt);B.show.bh=Math.max(B.bh,B.show.bh-90*dt);
+ const win=B.over&&B.bh<=0,lose=B.over&&B.hp<=0,tiredB=B.be<=0,lowP=B.hp<B.ph*.28;
+ /* protagonista */
+ let pp=B.pa>0?B.pp:win?'cheer':lowP?'tired':'guard';
+ const px=190-B.pk+(B.pa>0&&B.pp==='punch'?Math.sin((1-B.pa/.55)*Math.PI)*172:0);
+ if(lose){shadow(180,314,70);lying({...heroLook(),t,dizzy:1});stamp(180,314,2.7)}
+ else{shadow(px,312,40);hero(px,312,{t,d:1,pose:pp,gloves:win?0:'#38BDF8',slump:0,sweat:lowP||B.pe<20,eyes:pp==='hit'?'dizzy':win?'happy':lowP?'tired':'angry',mouth:win?'smile':pp==='hit'?'open':'grit'},2.7)}
+ /* Braulio */
+ const bpose=B.ba>0?B.bp:win?'tired':lose?'flex':tiredB?'tired':'guard';
+ const bx=450+B.bk-(B.ba>0&&B.bp==='punch'?Math.sin((1-B.ba/.55)*Math.PI)*168:0);
+ if(win){shadow(462,314,80);lying({...brau({}),m:1,t,dizzy:1});stamp(462,314,3.1,{flip:true})}
+ else{
+  shadow(bx,312,58);
+  const hurt=bpose==='hit';
+  person(brau({t,d:-1,pose:bpose,gloves:1,state:tiredB?'tired':'',...(hurt?{eyes:'dizzy',mouth:'open'}:{}),...(lose?{eyes:'happy',mouth:'smile'}:{})}));
+  stamp(bx+(hurt?Math.sin(t*60)*4:0),312,3);
+  if(tiredB&&!B.over){const k=(t*1.6)%1;X.globalAlpha=1-k;disc(X,'#e2e8f0',(bx-40-k*30)|0,(204-k*14)|0,4+(k*8|0));X.globalAlpha=1;text('¡SIN AIRE!',bx,128,10,'#38BDF8')}
+ }
+ frontRope();
+ /* HUD */
+ X.fillStyle='rgba(5,7,11,.7)';X.fillRect(0,0,640,60);
+ hudBar(14,18,236,B.hp,B.ph,B.show.hp,B.hp<B.ph*.28?'#EF4444':'#22C55E','TÚ HP');
+ hudBar(14,42,180,B.pe,B.pem,undefined,'#38BDF8','EN');
+ hudBar(390,18,236,B.bh,B.bhm,B.show.bh,'#A855F7','BRAULIO',true);
+ hudBar(446,42,180,B.be,B.bem,undefined,tiredB?'#EF4444':'#C084FC','AIRE',true);
+ text('T'+B.turn,320,32,14,'#F1F5F9');
+ if(B.sayT>0&&B.say&&!(B.bp==='hit'&&B.ba>0))bubble(B.say,bx,150,210);
+}
+
+/* =====================================================================
+   16. BUCLE PRINCIPAL Y CONTROLES
+   ===================================================================== */
+let last=performance.now(),clock=0;
+function loop(now){
+ const dt=paused?0:clamp((now-last)/1000,0,.05);last=now;clock+=dt;
+ X.save();X.clearRect(0,0,640,360);
+ if(shake>.4){R('#05070b',0,0,640,360);X.translate((Math.random()-.5)*shake|0,(Math.random()-.5)*shake|0);shake*=Math.pow(.004,dt)}else shake=0;
+ updateTraining(dt);
+ if(mode==='menu'||mode==='goals')drawMenu(clock);
+ else if(mode==='custom')drawCustom(clock);
+ else if(mode==='story'){if(ST)drawStory(dt)}
+ else if(mode==='intro'||mode==='battle'||(mode==='summary'&&B))drawBattle(clock,dt);
+ else drawGym(clock,dt);
+ drawFX(dt);
+ if(flash>0){X.fillStyle=`rgba(${flashColor},${flash})`;X.fillRect(-20,-20,680,400);flash=Math.max(0,flash-dt*2.2)}
+ X.restore();
+ requestAnimationFrame(loop);
+}
+cv.addEventListener('pointerdown',e=>{if(tm){e.preventDefault();press()}});
+document.addEventListener('keydown',e=>{
+ if(e.ctrlKey||e.metaKey||e.altKey)return;
+ if(e.code==='Escape'&&paused){closeGuide();return}
+ if(e.code==='Tab'&&paused){trapTab(e);return}
+ if(e.code==='KeyG'&&!e.repeat){paused?closeGuide():openGuide();return}
+ if(paused)return;
+ if(e.code==='Escape'&&ST){endStory();return}
+ if(e.code==='KeyM'&&!e.repeat){toggleMute();return}
+ const onHeader=e.target.closest&&e.target.closest('header');
+ if((e.code==='Space'||e.code==='Enter'||e.code==='NumpadEnter')&&tm&&!onHeader){e.preventDefault();if(!e.repeat)press();return}
+ const n=+e.key;
+ if(!e.repeat&&n>=1&&n<=4){
+  const a={battle:'[data-s]',event:'[data-o]',gym:'[data-t]'}[mode];
+  if(a){const b=document.querySelectorAll('#panel '+a)[n-1];if(b&&!b.disabled)b.click()}
+ }
+});
+/* ===== v1.1: guía, exportación y respaldo de confeti ===== */
+const VERSION='1.1.0',esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+let LAST=null;
+function openGuide(){if(paused)return;paused=true;lastFocus=document.activeElement;$('gm').hidden=false;$('gm').querySelector('.mbox').focus();sfx('click')}
+function closeGuide(){if(!paused)return;paused=false;$('gm').hidden=true;if(lastFocus&&lastFocus.focus)lastFocus.focus();sfx('click')}
+function trapTab(e){
+ const f=[...$('gm').querySelectorAll('button')],i=f.indexOf(document.activeElement);
+ if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}
+ else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}
+}
+$('gd').addEventListener('click',openGuide);
+$('gx').addEventListener('click',closeGuide);$('gok').addEventListener('click',closeGuide);
+$('gm').addEventListener('pointerdown',e=>{if(e.target===$('gm'))closeGuide()});
+function xsay(t){const el=$('xst');if(el)el.textContent=t}
+function buildReport(){
+ const g=goal||{},H=hist.filter(Boolean),W=!!(LAST&&LAST.win);
+ return{
+  juego:'MACRO-CLASH',version:VERSION,fecha:new Date().toISOString(),
+  objetivo:{clave:gkey,nombre:g.n,kcal:g.k,proteina_g:g.p,carbohidratos_g:g.c,grasas_g:g.f},
+  dias_completados:H.length,dias_totales:14,
+  puntaje_habitos:{valor:LAST?LAST.score:null,maximo:100,nivel:LAST?LAST.grade:''},
+  habitos:{dias_kcal_en_rango:T.ok,dias_proteina_suficiente:T.p,dias_carbos_suficientes:T.c,dias_con_ultraprocesados:T.j,dias_descanso:T.rest,dilemas_correctos:T.ev,dilemas_totales:T.evn},
+  minijuegos:{repeticiones_perfectas:T.perf,repeticiones_buenas:T.good||0,fallos:T.fail},
+  estadisticas_finales:{fuerza:Math.round(S.STR),resistencia:Math.round(S.STA),recuperacion:Math.round(S.REC),energia:Math.round(S.ENG),salud_metabolica:Math.round(S.HP)},
+  batalla:{resultado:W?'victoria':'derrota',turnos:B?B.turn:null,hp_jugador_final:B?Math.round(B.hp):null,hp_braulio_final:B?Math.round(B.bh):null,golpe_glucogeno_desbloqueado:T.c>=8},
+  detalle_diario:hist.map((h,i)=>h?{dia:i+1,kcal_pct:Math.round(h.k*100),proteina_pct:Math.round(h.p*100),carbos_pct:Math.round(h.c*100),grasas_pct:Math.round(h.f*100),ultraprocesados:h.j,actividad:h.act||'sin registro'}:null).filter(Boolean)
+ };
+}
+function reportText(r){
+ const b=r.batalla,h=r.habitos,e=r.estadisticas_finales,m=r.minijuegos,o=r.objetivo;
+ return[
+  'MACRO-CLASH · Resumen de partida (v'+r.version+')',
+  'Fecha: '+new Date(r.fecha).toLocaleString('es-MX'),
+  'Objetivo: '+o.nombre+' ('+o.kcal+' kcal · P '+o.proteina_g+' · C '+o.carbohidratos_g+' · G '+o.grasas_g+')',
+  'Días completados: '+r.dias_completados+'/'+r.dias_totales,
+  'Resultado de la batalla: '+(b.resultado==='victoria'?'VICTORIA':'DERROTA')+(b.turnos?' en '+b.turnos+' turnos':''),
+  'Puntaje de hábitos: '+r.puntaje_habitos.valor+'/100 ('+r.puntaje_habitos.nivel+')',
+  '',
+  'Hábitos (de 14 días):',
+  '- Kcal en rango: '+h.dias_kcal_en_rango,
+  '- Proteína suficiente: '+h.dias_proteina_suficiente,
+  '- Carbohidratos suficientes: '+h.dias_carbos_suficientes,
+  '- Días con ultraprocesados: '+h.dias_con_ultraprocesados,
+  '- Días de descanso: '+h.dias_descanso,
+  '- Dilemas correctos: '+h.dilemas_correctos+'/'+h.dilemas_totales,
+  '',
+  'Minijuegos: '+m.repeticiones_perfectas+' perfectas · '+m.repeticiones_buenas+' buenas · '+m.fallos+' fallos',
+  'Estadísticas finales: Fuerza '+e.fuerza+' · Resistencia '+e.resistencia+' · Recuperación '+e.recuperacion+' · Energía '+e.energia+' · Salud '+e.salud_metabolica
+ ].join('\n');
+}
+function copyText(t,msg){
+ const ok=()=>xsay(msg),fail=()=>xsay('No se pudo copiar: usa «Descargar .json»');
+ const legacy=()=>{const a=document.createElement('textarea');a.value=t;a.setAttribute('readonly','');a.style.cssText='position:fixed;opacity:0;top:0';document.body.appendChild(a);a.select();let r=false;try{r=document.execCommand('copy')}catch(e){}a.remove();r?ok():fail()};
+ if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(ok,legacy);else legacy();
+}
+function download(name,mime,t){
+ const u=URL.createObjectURL(new Blob([t],{type:mime})),a=document.createElement('a');
+ a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);
+}
+function miniConfetti(){
+ if(CALM)return;
+ const c=document.createElement('canvas');c.style.cssText='position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40';
+ c.width=innerWidth;c.height=innerHeight;document.body.appendChild(c);
+ const g=c.getContext('2d'),cols=['#22D3EE','#A855F7','#C084FC','#22C55E','#F8FAFC'],P=[];
+ for(let i=0;i<120;i++)P.push({x:Math.random()*c.width,y:-20-Math.random()*c.height*.4,vx:(Math.random()-.5)*2,vy:2+Math.random()*3,s:5+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[i%cols.length]});
+ let n=0;(function f(){g.clearRect(0,0,c.width,c.height);
+  for(const p of P){p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;g.save();g.translate(p.x,p.y);g.rotate(p.r);g.fillStyle=p.c;g.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);g.restore()}
+  if(++n<170)requestAnimationFrame(f);else c.remove()})();
+}
+reset();updateMuteBtn();menu();requestAnimationFrame(loop);
+</script>
+</body>
+</html>
