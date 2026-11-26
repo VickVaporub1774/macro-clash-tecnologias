@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#090A0F">
 <title>MACRO-CLASH: Camino al Olimpo del Gym</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%8B%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" onerror="document.documentElement.classList.add('no-bi')">
 <!-- Dependencias opcionales: si fallan o tardan, el juego funciona igual -->
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;800&family=Press+Start+2P&display=swap" media="print" onload="this.media='all'">
@@ -151,6 +152,28 @@ button:focus-visible{outline-color:var(--cy)}
 .gcard{background:var(--p2);border:1px solid var(--ln);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
 pre.rep{font:500 11px/1.5 var(--fm);background:#07080D;border:1px solid var(--ln);border-radius:8px;padding:10px;max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-word;color:var(--mu)}
 details{margin-top:8px}summary{cursor:pointer}
+/* v1.2 iconos, pie y móvil */
+.bi{display:inline-block;line-height:1;margin-right:.4em}
+.icon .bi,.logo .bi,.sw .bi{margin:0}
+.no-bi .bi::before{content:attr(data-e)!important;font-family:inherit!important;font-style:normal}
+.team{margin:22px 0 10px;padding-top:12px;border-top:1px solid var(--ln);text-align:center;color:var(--mu);font-size:12px}
+.team p{margin:0 0 8px;font:400 9px var(--fd);color:var(--act2)}
+.team ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:3px 16px}
+@media(max-width:640px){
+ body{font-size:17px}
+ button{font-size:16px;min-height:48px;padding:12px 14px}
+ .icon{min-width:48px;min-height:48px;font-size:20px}
+ .big{font-size:13px;padding:18px 20px;min-height:60px}
+ .blk{padding:14px 16px}.blk small{font-size:14px}
+ .fd{font-size:15px}.fd .mac{font-size:12.5px}.fd .ds{font-size:13px}
+ .mu{font-size:14.5px}.st span{font-size:12px}.st b{font-size:19px}
+ .meter{font-size:13.5px;grid-template-columns:58px 1fr 94px}.meter output{font-size:12.5px}
+ .tag{font-size:13.5px}.tip,.gcard,.mbox li{font-size:15.5px}
+ h2{font-size:15px}h3{font-size:12px}#log{font-size:13.5px}
+ .opt{font-size:15px;padding:10px 12px;min-height:44px}.sw{width:40px;height:40px}
+ .kpi span{font-size:12.5px}.heat{font-size:12px}#day{font-size:13px}
+ #skills{grid-template-columns:1fr}.slot{height:42px}pre.rep{font-size:12px}.team{font-size:13.5px}
+}
 </style>
 </head>
 <body>
@@ -159,9 +182,9 @@ details{margin-top:8px}summary{cursor:pointer}
   <h1 class="logo">MACRO-<em>CLASH</em><small>Camino al Olimpo del Gym</small></h1>
   <div class="hbtns">
    <b id="day"></b>
-   <button class="icon" id="gd" title="Guía y mecánicas (G)" aria-label="Abrir guía y mecánicas">📖</button>
-   <button class="icon" id="home" title="Volver al menú" aria-label="Volver al menú" hidden>🏠</button>
-   <button class="icon" id="mu" title="Sonido (M)" aria-label="Silenciar">🔊</button>
+   <button class="icon" id="gd" title="Guía y mecánicas (G)" aria-label="Abrir guía y mecánicas"><i class="bi bi-book-fill" data-e="📖" aria-hidden="true"></i></button>
+   <button class="icon" id="home" title="Volver al menú" aria-label="Volver al menú" hidden><i class="bi bi-house-fill" data-e="🏠" aria-hidden="true"></i></button>
+   <button class="icon" id="mu" title="Sonido (M)" aria-label="Silenciar"><i class="bi bi-volume-up-fill" data-e="🔊" aria-hidden="true"></i></button>
   </div>
  </header>
  <div id="layout">
@@ -171,13 +194,21 @@ details{margin-top:8px}summary{cursor:pointer}
   </section>
   <main id="panel" aria-live="polite"></main>
  </div>
+ <footer class="team"><p><i class="bi bi-people-fill" data-e="👥" aria-hidden="true"></i>Equipo de desarrollo</p><ul>
+  <li>Christopher Daniel Ladrón de Guevara Mace</li>
+  <li>Christopher Etienne Torres Gudiño</li>
+  <li>Angel Alejandro Reynoso Delgado</li>
+  <li>Jorge Moreno Ramírez</li>
+  <li>Diego Oswaldo Vargas Piceno</li>
+  <li>Kenneth Abraham Murillo Corona</li>
+ </ul></footer>
  <noscript><p>Este juego necesita JavaScript activado.</p></noscript>
 </div>
 <div id="gm" class="modal" hidden>
  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="gt" tabindex="-1">
-  <div class="mhead"><h2 id="gt">📖 Guía y mecánicas</h2><button class="icon" id="gx" aria-label="Cerrar guía">✕</button></div>
-  <div class="gcard"><b>🎯 Objetivo educativo.</b> Aprender cómo la comida, el descanso y tus decisiones diarias cambian tu rendimiento, y a distinguir mitos de evidencia. Tu dieta decide cómo entrenas.</div>
-  <div class="gcard"><b>🏁 Objetivo del juego.</b> Prepárate durante 14 días y vence a Braulio "El Ciclado" Broscience en la batalla del día 15.</div>
+  <div class="mhead"><h2 id="gt"><i class="bi bi-book-fill" data-e="📖" aria-hidden="true"></i> Guía y mecánicas</h2><button class="icon" id="gx" aria-label="Cerrar guía">✕</button></div>
+  <div class="gcard"><b><i class="bi bi-bullseye" data-e="🎯" aria-hidden="true"></i> Objetivo educativo.</b> Aprender cómo la comida, el descanso y tus decisiones diarias cambian tu rendimiento, y a distinguir mitos de evidencia. Tu dieta decide cómo entrenas.</div>
+  <div class="gcard"><b><i class="bi bi-flag-fill" data-e="🏁" aria-hidden="true"></i> Objetivo del juego.</b> Prepárate durante 14 días y vence a Braulio "El Ciclado" Broscience en la batalla del día 15.</div>
   <h3>Cada día</h3>
   <ul>
    <li><b>1. Cocina:</b> arma hasta 4 platos y acerca las barras a la franja verde (kcal, proteína, carbos y grasas).</li>
@@ -186,11 +217,11 @@ details{margin-top:8px}summary{cursor:pointer}
   </ul>
   <h3>Reglas clave</h3>
   <ul>
-   <li>🍞 Carbos &lt; 35 % de tu meta → glucógeno bajo: ganancias a la mitad.</li>
-   <li>🥩 Proteína &lt; 70 % → catabolismo: ese día no sube la Fuerza.</li>
-   <li>🔥 Kcal dentro de ±15 % → +25 % de ganancias. Más de 130 % o 2+ ultraprocesados → pesadez (cardio a la mitad).</li>
-   <li>😓 Energía &lt; 35 → −30 % de ganancias. Descansar la recupera.</li>
-   <li>⚡ Golpe de Glucógeno: se desbloquea con 8 días de buenos carbohidratos.</li>
+   <li><i class="bi bi-basket2-fill" data-e="🍞" aria-hidden="true"></i> Carbos &lt; 35 % de tu meta → glucógeno bajo: ganancias a la mitad.</li>
+   <li><i class="bi bi-shield-plus" data-e="🥩" aria-hidden="true"></i> Proteína &lt; 70 % → catabolismo: ese día no sube la Fuerza.</li>
+   <li><i class="bi bi-fire" data-e="🔥" aria-hidden="true"></i> Kcal dentro de ±15 % → +25 % de ganancias. Más de 130 % o 2+ ultraprocesados → pesadez (cardio a la mitad).</li>
+   <li><i class="bi bi-emoji-frown" data-e="😓" aria-hidden="true"></i> Energía &lt; 35 → −30 % de ganancias. Descansar la recupera.</li>
+   <li><i class="bi bi-lightning-charge-fill" data-e="⚡" aria-hidden="true"></i> Golpe de Glucógeno: se desbloquea con 8 días de buenos carbohidratos.</li>
   </ul>
   <h3>Controles</h3>
   <p class="mu">Espacio / Enter / clic: entrenar · 1-4: opciones y habilidades · M: sonido · G: esta guía · Esc: cerrar o saltar historia.</p>
@@ -266,7 +297,21 @@ const FOODS=[
  ['🥛','Leche (500 ml) con cacao natural',320,18,30,14,0,'Líquido, proteína y carbos para recuperarte.'],
  ['🍩','Donas glaseadas (3)',780,9,90,42,1,'Azúcar y grasa con casi cero saciedad.'],
  ['🍜','Sopa instantánea (2)',760,16,102,32,1,'Altísima en sodio y baja en proteína.'],
- ['🍟','Nuggets fritos + catsup',690,28,58,38,1,'Rebozado y fritura: poca proteína por caloría.']
+ ['🍟','Nuggets fritos + catsup',690,28,58,38,1,'Rebozado y fritura: poca proteína por caloría.'],
+ ['🌯','Burrito de frijol y pollo',640,40,72,18,0,'Comida completa: proteína, carbos y fibra en una tortilla.'],
+ ['🥚','Claras (8) con espinacas',150,29,4,1,0,'Proteína casi pura con muy pocas calorías.'],
+ ['🍓','Fresas y arándanos 2 tazas',133,2,33,1,0,'Carbo ligero con antioxidantes y fibra.'],
+ ['🍎','Manzanas (2)',190,1,50,0,0,'Fruta con fibra: saciante y portátil.'],
+ ['🌽','Elote con queso y limón',280,9,42,10,0,'Carbo de antojito mexicano; modera la mayonesa.'],
+ ['🥞','Hotcakes de avena (4)',420,22,58,10,0,'Desayuno con proteína y carbos de absorción lenta.'],
+ ['🍤','Camarones a la plancha 250 g',255,58,2,3,0,'Proteína muy magra con yodo y selenio.'],
+ ['🍖','Muslos de pollo sin piel (3)',480,58,0,26,0,'Proteína jugosa con más grasa que la pechuga.'],
+ ['🧋','Licuado de proteína con leche',300,34,18,9,0,'Práctico después de entrenar.'],
+ ['🍫','Barra de proteína comercial',220,20,22,7,1,'Cómoda, pero casi siempre ultraprocesada: no sustituye comida.'],
+ ['🥬','Sopa de verduras con pollo',320,28,30,8,0,'Hidrata, aporta fibra y proteína con pocas kcal.'],
+ ['🧆','Garbanzos cocidos 2 tazas',540,29,90,8,0,'Proteína vegetal, carbos lentos, hierro y fibra.'],
+ ['🍨','Helado de crema 2 tazas',540,9,64,28,1,'Azúcar y grasa saturada con poca saciedad.'],
+ ['🍪','Galletas rellenas (10)',490,5,70,22,1,'Calorías vacías: azúcar, harina refinada y grasa.']
 ];
 /* Se muestran de 0 a 100 */
 const STATS=[['STR','Fuerza','#A855F7'],['STA','Resistencia','#22D3EE'],['REC','Recuperación','#818CF8'],['ENG','Energía','#C084FC'],['HP','Salud metab.','#22C55E']];
@@ -346,8 +391,16 @@ const SOURCES=[
 const KEY='macroclash_save_v1',LOOK='macroclash_look_v1',MKEY='macroclash_mute_v1';
 const NR=8;
 let S,T,hist,evq,goal,gkey,day=1,sel=[],D=null,mode='menu',act=null,tm=null,B=null,ST=null,cast=[],lastFeat=0;
-let PL={skin:'#e0a67a',shirt:'#38BDF8',pants:'#2a4d8f',hair:'#2b1b10',gl:0,beard:0,cap:0};
-{const q=store.get(LOOK);if(q&&q.skin)Object.assign(PL,q)}
+let PL={skin:'#e0a67a',shirt:'#38BDF8',pants:'#2a4d8f',hair:'#2b1b10',gl:0,beard:0,cap:0,hat:0,hs:0,lg:0,shoe:'#e2e8f0',str:0,acc:'#A855F7'};
+function normPL(){
+ const HX=/^#[0-9a-f]{6}$/i,D0={skin:'#e0a67a',shirt:'#38BDF8',pants:'#2a4d8f',hair:'#2b1b10',shoe:'#e2e8f0',acc:'#A855F7'};
+ for(const k in D0)if(!HX.test(PL[k]||''))PL[k]=D0[k];
+ PL.hat=[0,1,2,3].includes(+PL.hat)?+PL.hat:(PL.cap?1:0);
+ PL.hs=[0,1,2,3,4].includes(+PL.hs)?+PL.hs:0;
+ PL.lg=PL.lg?1:0;PL.gl=[0,1,2].includes(+PL.gl)?+PL.gl:0;PL.beard=PL.beard?1:0;
+ if(PL.str&&!HX.test(PL.str))PL.str=0;PL.cap=0;
+}
+{const q=store.get(LOOK);if(q&&q.skin)Object.assign(PL,q);normPL()}
 function reset(){
  S={STR:10,STA:10,REC:10,ENG:50,HP:50};
  T={c:0,p:0,j:0,ok:0,ev:0,evn:0,rest:0,perf:0,good:0,fail:0};
@@ -565,7 +618,7 @@ function person(o){
  /* piernas y tenis */
  for(const s of[-1,1]){
   const hx=s*(lw/2+1),fx=s*(lw/2+1+stance)+(moving?s*step:0),lift=moving&&s*step>1?2:0;
-  limb(s<0?sd:skin,hx,hip,fx,-4-lift,lw);
+  limb(s<0?sd:skin,hx,hip,fx,-4-lift,lw);if(o.long)limb(pants,hx,hip,fx,-5-lift,lw+1);
   if(m>.55&&!o.lw)P(hi,fx-1,-10-lift,2,3);
   P(o.shoe||'#e2e8f0',fx-lw/2-(d<0?2:0),-3-lift,lw+2,3);P(o.shoeS||'#EF4444',fx-lw/2,-2-lift,lw,1);
  }
@@ -583,6 +636,7 @@ function person(o){
  if(m>.4&&tier>0){const c=shade(shirt,-.3);P(c,-sw/4-2,top+8,sw/4,1);P(c,3,top+8,sw/4,1);P(c,0,top+5,1,4)}
  if(m>.68&&tier>=2){const c=shade(shirt,-.3);for(let i=0;i<3;i++){P(c,-4,top+10+i*3,3,1);P(c,2,top+10+i*3,3,1)}}
  if(o.label){/* letras pixel 3x5: B R O */['110101110101110','110101110110101','111101101101111'].forEach((g,n)=>[...g].forEach((v,i)=>{if(v==='1')P('#fff',-6+n*4+i%3,top+7+(i/3|0),1,1)}))}
+ if(o.stripe){P(o.stripe,-sw/2+1,top+4,sw-2,2);P(o.stripe,-sw/2+1,top+th-4,sw-2,2)}
  P(shade(pants,-.35),-tw/2,-23+(tired?2:0),tw,2);
  /* cabeza */
  const hy=top-hs-1+(tired?3:0)-(o.lookUp?1:0),hx=-hs/2+(o.slump?d*2:0);
@@ -592,7 +646,9 @@ function person(o){
  face({...o,skin,hair},hx,hy,hs,o.d?d:0);
  if(o.spikes){const c=o.spikes,cl=shade(c,.45);P(c,hx,hy-2,hs,5);[[-1,6],[3,9],[7,11],[11,8]].forEach(([a,h])=>{for(let i=0;i<h;i++){const w=Math.max(1,4-Math.floor(i*4/h));P(c,hx+a+(4-w)/2,hy-1-i,w,1)}P(cl,hx+a+1,hy-h/2,1,3)})}
  else if(o.cap){P(o.cap,hx,hy-2,hs,5);P(shade(o.cap,-.3),hx+(d>0?hs-3:-4),hy+2,7,2);P('#fff',hx+hs/2-1,hy-1,2,2)}
- else if(!o.bald){P(hair,hx+1,hy-2,hs-2,4);P(hair,hx,hy,hs,2);P(hair,hx,hy+2,2,4);P(hair,hx+hs-2,hy+2,2,3);P(shade(hair,.25),hx+4,hy-1,4,1)}
+ else if(!o.bald&&o.hs===1){P(hair,hx+1,hy-1,hs-2,2)}
+ else if(!o.bald){if(o.hs===3){P(hair,hx-1,hy+3,3,12);P(hair,hx+hs-2,hy+3,3,12)}if(o.hs===4)P(hair,hx-3,hy-5,hs+6,9);P(hair,hx+1,hy-2,hs-2,4);P(hair,hx,hy,hs,2);P(hair,hx,hy+2,2,4);P(hair,hx+hs-2,hy+2,2,3);P(shade(hair,.25),hx+4,hy-1,4,1)}
+ if(o.beanie){P(o.beanie,hx,hy-3,hs,6);P(shade(o.beanie,.3),hx,hy+1,hs,1)}
  if(o.band){P(o.band,hx,hy+1,hs,2);P(o.band,hx+(d>0?-3:hs),hy+2,3,2)}
  /* brazos: [codo, mano] relativos al hombro */
  const shY=top+3,A=s=>{
@@ -653,9 +709,9 @@ function lying(o){
 function level(){return S?(S.STR+S.STA+S.REC)/300:0}
 function heroLook(extra={}){
  const lv=level(),tier=lv>=.62?3:lv>=.42?2:lv>=.22?1:0,low=S&&S.ENG<35&&mode!=='custom'&&mode!=='story';
- return{skin:PL.skin,hair:PL.hair,shirt:PL.shirt,pants:PL.pants,gl:PL.gl,beard:PL.beard,cap:PL.cap?PL.shirt:0,
+ return{skin:PL.skin,hair:PL.hair,shirt:PL.shirt,pants:PL.pants,gl:PL.gl,beard:PL.beard,cap:PL.hat===1?PL.shirt:0,beanie:PL.hat===2?PL.acc:0,spikes:PL.hs===2?PL.hair:0,hs:PL.hs,long:PL.lg,stripe:PL.str,shoe:PL.shoe,
   m:clamp((lv-.08)*1.35,0,1),tier,slump:low||tier===0,sweat:low,eyes:low?'tired':tier>=2?'normal':'normal',mouth:low?'open':tier>=2?'smile':'neutral',
-  band:tier>=2&&!PL.cap?'#EF4444':0,wraps:tier>=2?'#f1f5f9':0,shoeS:tier>=2?'#A855F7':'#64748b',...extra};
+  band:PL.hat===3?PL.acc:(tier>=2&&!PL.hat?'#EF4444':0),wraps:tier>=2?'#f1f5f9':0,shoeS:tier>=2?'#A855F7':'#64748b',...extra};
 }
 function aura(cx,fy,t,scale=2){
  const lv=level();if(lv<.55)return;
@@ -830,6 +886,13 @@ function bubble(t,cx,by,mw=190){
 /* =====================================================================
    9. INTERFAZ GENERAL
    ===================================================================== */
+const IC=[["😮‍💨", "wind"], ["📖", "book-fill"], ["🔊", "volume-up-fill"], ["🔇", "volume-mute-fill"], ["🏠", "house-fill"], ["🎯", "bullseye"], ["🏁", "flag-fill"], ["🍞", "basket2-fill"], ["🥩", "shield-plus"], ["🥑", "droplet-half"], ["🔥", "fire"], ["😓", "emoji-frown"], ["😴", "moon-stars-fill"], ["⚡", "lightning-charge-fill"], ["▶", "play-fill"], ["⏩", "fast-forward-fill"], ["⏭", "skip-forward-fill"], ["❓", "question-circle-fill"], ["🍳", "egg-fried"], ["🍽", "cup-hot-fill"], ["🏋", "person-arms-up"], ["🪢", "arrow-repeat"], ["🏃", "speedometer2"], ["🧘", "flower1"], ["💪", "person-arms-up"], ["⚖", "sliders"], ["🥊", "lightning-fill"], ["🏆", "trophy-fill"], ["💀", "emoji-dizzy-fill"], ["🥴", "emoji-dizzy-fill"], ["🥇", "award-fill"], ["🥈", "award-fill"], ["🥉", "award-fill"], ["🧩", "puzzle-fill"], ["🔁", "arrow-repeat"], ["📋", "clipboard-check-fill"], ["⬇", "download"], ["✅", "check-circle-fill"], ["❌", "x-circle-fill"], ["⚠", "exclamation-triangle-fill"], ["🔋", "battery-half"], ["🔒", "lock-fill"], ["🍟", "exclamation-diamond-fill"], ["📱", "phone-fill"], ["📚", "book-half"], ["🎂", "cake2-fill"], ["🦵", "activity"], ["🧪", "eyedropper"], ["🥵", "thermometer-sun"], ["📵", "phone-vibrate-fill"], ["💉", "capsule"], ["⏱", "stopwatch-fill"], ["🧃", "cup-straw"], ["🤒", "thermometer-half"], ["🍻", "cup-fill"], ["🌅", "sunrise-fill"]],ICM=Object.fromEntries(IC),ICRE=new RegExp('('+IC.map(a=>a[0]).join('|')+')\uFE0F?','g');
+function icons(h){
+ const keep=[];
+ h=h.replace(/<span class="em">.*?<\/span>|<button class="slot"[^>]*>.*?<\/button>/g,m=>'\uE000'+(keep.push(m)-1)+'\uE001');
+ h=h.split(/(<[^>]*>)/).map(x=>x[0]==='<'?x:x.replace(ICRE,(m,e)=>`<i class="bi bi-${ICM[e]}" data-e="${e}" aria-hidden="true"></i>`)).join('');
+ return h.replace(/\uE000(\d+)\uE001/g,(m,i)=>keep[i]);
+}
 const inMeta=()=>mode==='menu'||mode==='custom'||mode==='story';
 function ui(){
  const show=['kitchen','gym','train','rest','event','intro'].includes(mode);
@@ -844,7 +907,7 @@ function ui(){
 }
 function setMode(m){mode=m;ui()}
 function panel(html){
- const p=$('panel');p.innerHTML=html;p.style.animation='none';void p.offsetWidth;p.style.animation='';
+ const p=$('panel');p.innerHTML=icons(html);p.style.animation='none';void p.offsetWidth;p.style.animation='';
 }
 /* Asocia clics a los elementos recién pintados */
 function on(selector,fn){document.querySelectorAll('#panel '+selector).forEach(b=>b.addEventListener('click',()=>fn(b)))}
@@ -856,7 +919,7 @@ function gain(k,v){
  if(k!=='ENG'&&Math.floor(S[k]/25)>Math.floor(o/25)){sfx('up');floatText('¡NUEVO NIVEL!','#A855F7',320,110,16);burst(320,200,['#A855F7','#4ADE80','#fff'],34,230)}
  ui();
 }
-function updateMuteBtn(){const m=Audio2.muted;$('mu').textContent=m?'🔇':'🔊';$('mu').setAttribute('aria-pressed',m);$('mu').setAttribute('aria-label',m?'Activar sonido':'Silenciar')}
+function updateMuteBtn(){const m=Audio2.muted;$('mu').innerHTML=icons(m?'🔇':'🔊');$('mu').setAttribute('aria-pressed',m);$('mu').setAttribute('aria-label',m?'Activar sonido':'Silenciar')}
 function toggleMute(){Audio2.setMute(!Audio2.muted);updateMuteBtn();if(!Audio2.muted)sfx('click')}
 $('mu').addEventListener('click',toggleMute);
 $('home').addEventListener('click',()=>{
@@ -884,7 +947,7 @@ function menu(){
   gkey=s.g;goal=GOALS[s.g];day=s.day;S=s.S;Object.assign(T,s.T);
   if(Array.isArray(s.hist))hist=s.hist;
   if(Array.isArray(s.evq)&&s.evq.length===EVENT_DAYS.length&&s.evq.every(i=>EVENTS[i]))evq=s.evq;
-  if(s.pl)Object.assign(PL,s.pl);
+  if(s.pl)Object.assign(PL,s.pl);normPL();
   if(day>14)intro();else kitchen();
  });
 }
@@ -899,7 +962,13 @@ function how(back){
  <button class="btn-main" id="bk">Entendido</button>`);
  on('#bk',()=>{sfx('click');back()});
 }
-const SKT=['#f6d2b0','#e0a67a','#c68a5c','#8d5a3a','#5b3a29'],SHT=['#e84a5f','#38BDF8','#A855F7','#4ADE80','#a78bfa','#C084FC','#e2e8f0','#94A3B8'],PAT=['#2a4d8f','#222222','#444b57','#6b2a2a','#1f5a3a','#e2e8f0','#C084FC','#6d28d9'],HAT=['#2b1b10','#111111','#8a5a2b','#d9b24c','#c0392b','#cfd5dc'];
+const SKT=['#fde3c8','#f6d2b0','#e0a67a','#c68a5c','#a86f48','#8d5a3a','#6b4430','#5b3a29','#3e2a1f','#d9c3f0'],
+ SHT=['#e84a5f','#f97316','#facc15','#4ADE80','#22D3EE','#38BDF8','#6366f1','#A855F7','#C084FC','#ec4899','#e2e8f0','#94A3B8','#334155','#111827','#14b8a6','#a3e635'],
+ PAT=['#2a4d8f','#222222','#444b57','#6b2a2a','#1f5a3a','#e2e8f0','#C084FC','#6d28d9','#0e7490','#b45309','#be123c','#0f172a'],
+ HAT=['#2b1b10','#111111','#4a2f1b','#8a5a2b','#d9b24c','#c0392b','#cfd5dc','#6d28d9','#22D3EE','#ec4899'],
+ ACC=['#A855F7','#22D3EE','#EF4444','#FACC15','#4ADE80','#f8fafc','#111827','#f97316'],
+ SHO=['#e2e8f0','#111827','#EF4444','#22D3EE','#A855F7','#FACC15','#4ADE80','#f97316'],
+ STRP=['#f8fafc','#22D3EE','#A855F7','#FACC15','#EF4444','#4ADE80','#111827','#f97316'];
 let preview=0;
 function custom(){
  if(mode!=='custom'){clearScene();reset();preview=0;setMode('custom')}
@@ -908,11 +977,17 @@ function custom(){
  panel(`<h2>Crea a tu atleta</h2>
  ${sw(SKT,'skin','Piel')}${sw(SHT,'shirt','Camisa')}${sw(PAT,'pants','Short')}${sw(HAT,'hair','Cabello')}
  <div class="cr"><b>Lentes</b>${op('Ninguno','gl',0)}${op('Claros','gl',1)}${op('De sol','gl',2)}</div>
- <div class="cr"><b>Extras</b>${op('Barba','beard',1)}${op('Gorra','cap',1)}</div>
+ <div class="cr"><b>Peinado</b>${op('Corto','hs',0)}${op('Rapado','hs',1)}${op('Largo','hs',3)}${op('Cresta','hs',2)}${op('Afro','hs',4)}</div>
+ <div class="cr"><b>Sombrero</b>${op('Ninguno','hat',0)}${op('Gorra','hat',1)}${op('Gorro','hat',2)}${op('Diadema','hat',3)}</div>
+ ${sw(ACC,'acc','Color gorro/diadema')}
+ <div class="cr"><b>Pantalón</b>${op('Short','lg',0)}${op('Largo','lg',1)}</div>
+ ${sw(SHO,'shoe','Tenis')}
+ <div class="cr"><b>Franja camisa</b>${op('Sin','str',0)}${STRP.map((c,i)=>`<button class="sw" aria-pressed="${PL.str===c}" data-k="str" data-v="${c}" style="background:${c}" aria-label="Franja ${i+1}"></button>`).join('')}</div>
+ <div class="cr"><b>Extras</b>${op('Barba','beard',1)}</div>
  <div class="cr"><b>Vista previa</b>${['Novato','Constante','Atleta','Olímpico'].map((n,i)=>`<button class="opt" aria-pressed="${preview===i}" data-pv="${i}">${n}</button>`).join('')}</div>
  <p class="mu">Tu apariencia cambiará así conforme mejores Fuerza, Resistencia y Recuperación.</p>
  <div class="row"><button class="btn-main" id="cgo">▶ Comenzar</button><button id="cbk">Atrás</button></div>`);
- on('[data-k]',b=>{const k=b.dataset.k;if(k==='beard'||k==='cap')PL[k]=PL[k]?0:1;else PL[k]=k==='gl'?+b.dataset.v:b.dataset.v;sfx('select');custom()});
+ on('[data-k]',b=>{const k=b.dataset.k;if(k==='beard'||k==='cap')PL[k]=PL[k]?0:1;else{const v=b.dataset.v;PL[k]=['gl','hat','hs','lg'].includes(k)?+v:v==='0'?0:v}sfx('select');custom()});
  on('[data-pv]',b=>{preview=+b.dataset.pv;const v=[10,35,55,85][preview];S.STR=S.STA=S.REC=v;sfx('select');custom()});
  on('#cgo',()=>{store.set(LOOK,PL);sfx('click');story()});
  on('#cbk',()=>{sfx('click');menu()});
@@ -1029,6 +1104,11 @@ function cook(){
 /* =====================================================================
    12. GIMNASIO Y MINIJUEGOS
    ===================================================================== */
+const EXD={bench:{n:'Press de Banca',i:'🏋️',e:'bar',s:'STR',m:1,en:12},
+ curl:{n:'Curl con mancuernas',i:'💪',e:'bar',s:'STR',m:.85,en:10,fast:1.2,narrow:.85},
+ mob:{n:'Movilidad y core',i:'🧘',e:'bar',s:'REC',m:.9,en:6,fast:.75},
+ rope:{n:'Cuerda al ritmo',i:'🪢',e:'beat',s:'STA',m:1,en:12},
+ sprint:{n:'Sprint en banda',i:'🏃',e:'beat',s:'STA',m:1.15,en:16,fast:1.25}};
 function gym(){
  setMode('gym');const f=D.fl,t=(c,s)=>`<span class="tag t-${c}">${s}</span>`;
  panel(`<h2>🏋️ El Gimnasio</h2>
@@ -1036,7 +1116,10 @@ function gym(){
  <p>Calidad de tu dieta: <b>${Math.round(D.q*100)} %</b> → zona de acierto ${zoneWidth(D.q)}.</p>
  <button class="blk btn-act" data-t="bench">🏋️ Fuerza: Press de Banca <kbd>1</kbd><small>Detén el marcador en la zona verde. Sube Fuerza.</small></button>
  <button class="blk btn-act" data-t="rope">🪢 Cardio: Cuerda al ritmo <kbd>2</kbd><small>Salta justo cuando la nota llegue al aro. Sube Resistencia.</small></button>
- <button class="blk" data-t="rest">😴 Descanso activo <kbd>3</kbd><small>Estiramientos y sueño: +Recuperación, +Salud, +Energía.</small></button>`);
+ <button class="blk" data-t="rest">😴 Descanso activo <kbd>3</kbd><small>Estiramientos y sueño: +Recuperación, +Salud, +Energía.</small></button>
+ <button class="blk btn-act" data-t="curl">💪 Fuerza: Curl con mancuernas <kbd>4</kbd><small>Zona más angosta y ritmo mayor. Sube Fuerza con menos gasto de energía.</small></button>
+ <button class="blk btn-act" data-t="sprint">🏃 Cardio: Sprint en banda <kbd>5</kbd><small>Notas más veloces: más Resistencia, pero cuesta más energía.</small></button>
+ <button class="blk" data-t="mob">🧘 Movilidad y core <kbd>6</kbd><small>Barra lenta y amplia. Sube Recuperación con poca energía.</small></button>`);
  on('[data-t]',b=>{sfx('click');train(b.dataset.t)});
  scrollToEl($('stage'));
 }
@@ -1049,13 +1132,13 @@ function train(k){
   later(()=>{gain('REC',6);gain('HP',3);gain('ENG',10);sfx('heal');later(endDay,1200)},1500);return;
  }
  setMode('train');
- const q=D.q,bench=k==='bench';
+ const q=D.q,X0=EXD[k],bench=X0.e==='bar';
  tm={k,r:0,hits:0,perf:0,combo:0,maxCombo:0,pts:0,bad:0,lock:0,wait:1.2,fb:'',fbT:0,fbC:'#fff',results:[],anim:0,
   /* banca */ pos:0,dir:1,w:.12+q*.2,z:.4,speed:1.35-q*.65,
   /* cuerda */ note:null,win:22+q*24,vel:300-q*70};
- tm.base=tm.speed;
+ tm.ex=X0;tm.base=tm.speed=tm.speed*(X0.fast||1);tm.w*=X0.narrow||1;tm.vel*=X0.fast||1;
  moveZone();
- panel(`<h2>${bench?'🏋️ Press de Banca':'🪢 Cuerda al ritmo'}</h2>
+ panel(`<h2>${X0.i} ${X0.n}</h2>
  <p>${bench?'Pulsa cuando el marcador blanco esté en la <b style="color:var(--ok2)">zona verde</b>. El centro dorado es <b style="color:var(--act)">PERFECTO</b>.':'Salta cuando la nota entre en el <b style="color:var(--ok2)">aro</b>. Entre más centrada, mejor: <b style="color:var(--act)">PERFECTO</b>.'}</p>
  <p class="mu">${NR} repeticiones. Encadena aciertos: 3 seguidos ×1.2, 5 seguidos ×1.4. Cada fallo cuesta 2 de energía extra.</p>
  <button class="btn-act blk big" id="now" style="text-align:center;min-height:84px">¡AHORA! <kbd>Espacio</kbd></button>`);
@@ -1069,12 +1152,12 @@ function spawnNote(){tm.note={x:640+rnd(120)}}
 function press(){
  if(paused||!tm||tm.lock||tm.wait>0)return;
  let dist,half;
- if(tm.k==='bench'){dist=Math.abs(tm.pos-(tm.z+tm.w/2));half=tm.w/2+.008}
+ if(tm.ex.e==='bar'){dist=Math.abs(tm.pos-(tm.z+tm.w/2));half=tm.w/2+.008}
  else{if(!tm.note||tm.note.x-170>150)return;dist=Math.abs(tm.note.x-170);half=tm.win}
  judge(dist<=half*.36?2:dist<=half?1:0);
 }
 function judge(res){
- const bench=tm.k==='bench';
+ const bench=tm.ex.e==='bar';
  if(res){
   tm.combo++;tm.hits++;tm.maxCombo=Math.max(tm.maxCombo,tm.combo);
   const mult=tm.combo>=5?1.4:tm.combo>=3?1.2:1;
@@ -1098,7 +1181,7 @@ function updateTraining(dt){
  if(!tm)return;
  tm.fbT=Math.max(0,tm.fbT-dt);tm.anim=Math.max(0,tm.anim-dt);
  if(tm.lock)return;
- if(tm.k==='bench'){
+ if(tm.ex.e==='bar'){
   if(tm.r===0&&tm.wait>0){tm.wait-=dt;return}
   tm.wait=Math.max(0,tm.wait-dt);
   tm.pos+=tm.speed*tm.dir*dt;
@@ -1118,14 +1201,14 @@ function finishTraining(){
  tm=null;act=null;setMode('gym');
  if(hist[day-1]){hist[day-1].act=k;hist[day-1].perf=sum.perf}
  let result;
- if(k==='bench'){
+ const XD=EXD[k],A2=amount*XD.m;if(XD.s==='STR'){
   if(f.cata){floatText('CATABOLISMO: +0 FUERZA','#EF4444',320,130,12);result='Sin proteína suficiente no hubo ganancia de Fuerza.'}
-  else{gain('STR',amount);result=`Fuerza +${Math.round(amount)}`}
- }else{const v=amount*(f.pes?.5:1);gain('STA',v);result=`Resistencia +${Math.round(v)}`}
- gain('ENG',-12-2*bad);sfx('up');
+  else{gain('STR',A2);result=`Fuerza +${Math.round(A2)}`}
+ }else if(XD.s==='REC'){gain('REC',A2);result=`Recuperación +${Math.round(A2)}`}else{const v=A2*(f.pes?.5:1);gain('STA',v);result=`Resistencia +${Math.round(v)}`}
+ gain('ENG',-XD.en-2*bad);sfx('up');
  panel(`<h2>Serie terminada</h2>
  <div class="kpis"><div class="kpi"><b style="color:var(--act)">${sum.perf}</b><span>Perfectos</span></div><div class="kpi"><b style="color:var(--ok2)">${sum.good}</b><span>Bien</span></div><div class="kpi"><b style="color:var(--bad)">${sum.bad}</b><span>Fallos</span></div><div class="kpi"><b style="color:var(--info)">${sum.combo}</b><span>Mejor racha</span></div></div>
- <p style="margin-top:10px"><b>${result}</b> · Energía −${12+2*bad}</p>
+ <p style="margin-top:10px"><b>${result}</b> · Energía −${XD.en+2*bad}</p>
  <button class="btn-main" id="nx">Continuar</button>`);
  on('#nx',()=>{sfx('click');endDay()});
 }
@@ -1246,7 +1329,7 @@ function summary(win){
  const row=(label,fn)=>`<span>${label}</span>`+days.map(i=>{const h=hist[i];if(!h)return`<i title="Día ${i+1}: sin registro"></i>`;const[c,s,t]=fn(h);return`<i class="${c}" title="Día ${i+1}: ${t}">${s}</i>`}).join('');
  const pct=v=>Math.round(v*100)+' %';
  const lvl=(v,lo,hi)=>v>=lo&&v<=hi?['g','✓']:v<lo*.8||v>hi*1.2?['r',v<lo?'↓':'↑']:['w',v<lo?'↓':'↑'];
- const actNames={bench:['w','F','Fuerza'],rope:['g','C','Cardio'],rest:['b','D','Descanso']};
+ const actNames={bench:['w','F','Fuerza'],rope:['g','C','Cardio'],rest:['b','D','Descanso'],curl:['w','F','Fuerza'],sprint:['g','C','Cardio'],mob:['b','M','Movilidad']};
  panel(`<h2 style="color:${win?'var(--ok2)':'var(--bad)'}">${win?'🏆 ¡VICTORIA!':'💀 Derrota'}</h2>
  <p>${win?'Derrotaste a Braulio: la ciencia le ganó al broscience.':'Braulio resistió esta vez. Tus hábitos tienen la respuesta para la revancha.'}</p>
  <div class="kpis">
@@ -1350,7 +1433,7 @@ function drawGym(t,dt){
  const people=cast.filter(c=>!(c.walk&&c.wait>0));
  drawCast(people.filter(c=>c.y<=300).sort((a,b)=>a.y-b.y),t);
  if(act==='bench'&&tm)drawBench(t);
- else if(act==='rope'&&tm)drawRope(t);
+ else if(tm&&tm.ex.e==='bar')drawBar(t);else if(tm&&tm.ex.e==='beat')drawRope(t);
  else if(act==='rest')drawRest(t);
  else{shadow(320,308,34);hero(320,308,{t,pose:S.ENG<20?'tired':'stand'},2.4)}
  if(mode!=='train')for(const c of people)if(c.say)bubble(c.say,c.x,c.y-128,c.say.length>50?230:190);
@@ -1378,14 +1461,22 @@ function drawBench(t){
  R('#A855F7',x0+(tm.z+tm.w*.32)*W,y,tm.w*.36*W,22);R('#E9D5FF',x0+(tm.z+tm.w*.32)*W,y,tm.w*.36*W,5);
  box(X,'#fff',x0+tm.pos*W-3,y-7,6,36);
 }
+function drawBar(t){
+ shadow(320,308,34);
+ hero(320,308,tm.k==='curl'?{t,pose:'curl',ph:tm.pos*Math.PI-1.57}:{t,pose:'stretch'},2.4);
+ trainHUD();
+ const x0=80,W=480,y=322;box(X,'#111827',x0,y,W,22);
+ R('#22C55E',x0+tm.z*W,y,tm.w*W,22);R('#A855F7',x0+(tm.z+tm.w*.32)*W,y,tm.w*.36*W,22);
+ box(X,'#fff',x0+tm.pos*W-3,y-7,6,36);
+}
 function drawRope(t){
  const n=tm.note,near=n?Math.max(0,1-Math.abs(n.x-170)/110):0,hop=Math.max(near*30,tm.anim>0?Math.sin((1-tm.anim/.5)*Math.PI)*34:0);
- const fy=296-hop,phase=n?(n.x-170)/90:t*5,cy=Math.cos(phase);
+ const sp=tm.k==='sprint',fy=296-hop,phase=n?(n.x-170)/90:t*5,cy=Math.cos(phase);
  shadow(320,300,40-hop*.4);
  const rope=()=>{for(const[lw,col]of[[7,'#07090d'],[3,'#A855F7']]){X.strokeStyle=col;X.lineWidth=lw;X.beginPath();X.moveTo(320-52,fy-52);X.quadraticCurveTo(320,fy-52+cy*118,320+52,fy-52);X.stroke()}};
- if(Math.sin(phase)<0)rope();
- hero(320,fy,{t,pose:'rope'},2.3);
- if(Math.sin(phase)>=0)rope();
+ if(!sp&&Math.sin(phase)<0)rope();
+ hero(320,fy,sp?{t,pose:'walk',ph:t*16}:{t,pose:'rope'},2.3);
+ if(!sp&&Math.sin(phase)>=0)rope();
  trainHUD();
  /* carril de ritmo */
  const y=332;box(X,'#111827',60,y-14,520,28);
@@ -1398,7 +1489,7 @@ function trainHUD(){
  text(`REP ${Math.min(NR,tm.r+1)}/${NR}`,14,25,11,'#F1F5F9','left');
  for(let i=0;i<NR;i++){const r=tm.results[i];box(X,r===undefined?'#1C2333':r===2?'#A855F7':r===1?'#4ADE80':'#EF4444',172+i*24,13,16,12)}
  text(`RACHA ${tm.combo}`,626,25,11,tm.combo>=3?'#A855F7':'#94A3B8','right');
- if(tm.r===0&&tm.wait>0&&tm.k==='bench')text('¡PREPÁRATE!',320,90,22,'#38BDF8');
+ if(tm.r===0&&tm.wait>0&&tm.ex.e==='bar')text('¡PREPÁRATE!',320,90,22,'#38BDF8');
  if(tm.fbT>0){const k=Math.min(1,(.9-tm.fbT)*8);text(tm.fb,320,92-(1-k)*14,tm.fbC==='#A855F7'?26:20,tm.fbC)}
 }
 function drawRest(t){
@@ -1483,13 +1574,13 @@ document.addEventListener('keydown',e=>{
  const onHeader=e.target.closest&&e.target.closest('header');
  if((e.code==='Space'||e.code==='Enter'||e.code==='NumpadEnter')&&tm&&!onHeader){e.preventDefault();if(!e.repeat)press();return}
  const n=+e.key;
- if(!e.repeat&&n>=1&&n<=4){
+ if(!e.repeat&&n>=1&&n<=6){
   const a={battle:'[data-s]',event:'[data-o]',gym:'[data-t]'}[mode];
   if(a){const b=document.querySelectorAll('#panel '+a)[n-1];if(b&&!b.disabled)b.click()}
  }
 });
 /* ===== v1.1: guía, exportación y respaldo de confeti ===== */
-const VERSION='1.1.0',esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const VERSION='1.2.0',esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 let LAST=null;
 function openGuide(){if(paused)return;paused=true;lastFocus=document.activeElement;$('gm').hidden=false;$('gm').querySelector('.mbox').focus();sfx('click')}
 function closeGuide(){if(!paused)return;paused=false;$('gm').hidden=true;if(lastFocus&&lastFocus.focus)lastFocus.focus();sfx('click')}
@@ -1557,6 +1648,8 @@ function miniConfetti(){
   for(const p of P){p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;g.save();g.translate(p.x,p.y);g.rotate(p.r);g.fillStyle=p.c;g.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);g.restore()}
   if(++n<170)requestAnimationFrame(f);else c.remove()})();
 }
+const noBi=()=>document.documentElement.classList.add('no-bi');
+addEventListener('load',()=>{try{document.fonts.load('1em bootstrap-icons').then(f=>{if(!f.length)noBi()}).catch(noBi)}catch(e){noBi()}});
 reset();updateMuteBtn();menu();requestAnimationFrame(loop);
 </script>
 </body>
